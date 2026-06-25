@@ -1,0 +1,2587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🔞 网红直播模拟器 v8.5 - 主页美化+身材类型+20道具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: #0a0a0a; min-height: 100vh; overflow: hidden; }
+        #app { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
+        input[type="file"] { display: none; }
+        
+        /* ====== 主页（个人空间） ====== */
+        .profile-screen {
+            width: 100%; height: 100%; background: #0a0a0a; overflow-y: auto; position: absolute; top: 0; left: 0; z-index: 1;
+        }
+        .profile-header {
+            position: relative; width: 100%; height: 300px; overflow: hidden;
+        }
+        .profile-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #ff2d78 0%, #8b008b 50%, #4a0030 100%);
+            background-size: cover; background-position: center; cursor: pointer; transition: all 0.3s;
+        }
+        .profile-bg::after {
+            content: '点击更换背景'; position: absolute; bottom: 10px; right: 15px; color: rgba(255,255,255,0.6); font-size: 11px; padding: 4px 10px; background: rgba(0,0,0,0.5); border-radius: 12px;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .profile-bg:active::after { opacity: 1; }
+        .profile-header-content {
+            position: absolute; bottom: -50px; left: 20px; display: flex; align-items: flex-end; gap: 15px; z-index: 5;
+        }
+        .profile-avatar {
+            width: 110px; height: 110px; border-radius: 22px; background: linear-gradient(135deg, #2a0a2a, #1a0510);
+            display: flex; align-items: center; justify-content: center; font-size: 50px;
+            border: 3px solid rgba(255,45,120,0.5); overflow: hidden; cursor: pointer; box-shadow: 0 5px 30px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        .profile-avatar img { width: 100%; height: 100%; object-fit: contain; background: #1a0a1a; }
+        .profile-avatar::after {
+            content: '✎'; position: absolute; bottom: -4px; right: -4px;
+            width: 28px; height: 28px; border-radius: 50%;
+            background: linear-gradient(135deg, #ff2d78, #ff6b9d);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            border: 2px solid #0a0a0a; color: white;
+        }
+        .profile-id-section { padding-bottom: 8px; }
+        .profile-id-row { display: flex; align-items: center; gap: 8px; }
+        .profile-id { color: white; font-size: 22px; font-weight: bold; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .edit-icon { color: rgba(255,255,255,0.6); font-size: 14px; cursor: pointer; padding: 4px; }
+        .profile-id-input {
+            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); border-radius: 8px;
+            color: white; padding: 4px 10px; font-size: 16px; width: 150px; outline: none;
+        }
+        .profile-bio {
+            color: rgba(255,255,255,0.8); font-size: 12px; margin-top: 4px; max-width: 200px;
+            background: rgba(0,0,0,0.4); padding: 4px 10px; border-radius: 10px; cursor: pointer;
+        }
+        .profile-bio-input {
+            background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.4); border-radius: 10px;
+            color: white; padding: 4px 10px; font-size: 12px; width: 200px; outline: none; margin-top: 4px;
+        }
+        .profile-gender-tag {
+            display: inline-block; margin-top: 6px; padding: 3px 10px;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px; font-size: 11px; color: rgba(255,255,255,0.85); cursor: pointer;
+        }
+        
+        .profile-stats {
+            display: flex; justify-content: space-around; padding: 65px 20px 20px; background: #0a0a0a;
+        }
+        .profile-stat { text-align: center; flex: 1; }
+        .profile-stat-value { color: white; font-size: 20px; font-weight: bold; }
+        .profile-stat-value.income { color: #ff2d78; text-shadow: 0 0 10px rgba(255,45,120,0.5); }
+        .profile-stat-label { color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 4px; }
+        
+        .profile-actions {
+            display: flex; gap: 10px; padding: 0 20px 20px; background: #0a0a0a;
+        }
+        .action-btn {
+            flex: 1; padding: 12px; background: linear-gradient(135deg, #ff2d78, #ff6b9d);
+            border: none; border-radius: 25px; color: white; font-size: 14px; font-weight: bold; cursor: pointer;
+        }
+        .action-btn.secondary { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,45,120,0.5); }
+        
+        .profile-section { background: #1a0a1a; margin: 15px; padding: 20px; border-radius: 15px; border: 1px solid rgba(255,45,120,0.2); }
+        .section-title { color: white; font-size: 16px; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .section-title::before { content: ''; width: 4px; height: 16px; background: linear-gradient(180deg, #ff2d78, #ff6b9d); border-radius: 2px; }
+        
+        .income-list { max-height: 300px; overflow-y: auto; }
+        .income-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .income-item:last-child { border-bottom: none; }
+        .income-date { color: rgba(255,255,255,0.5); font-size: 12px; }
+        .income-detail { color: rgba(255,255,255,0.7); font-size: 13px; flex: 1; margin: 0 15px; }
+        .income-amount { color: #ff2d78; font-size: 14px; font-weight: bold; }
+        .empty-hint { color: rgba(255,255,255,0.3); text-align: center; padding: 20px; font-size: 13px; }
+        
+        /* 留言板 */
+        .message-board { max-height: 400px; overflow-y: auto; }
+        .message-item {
+            display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .message-item:last-child { border-bottom: none; }
+        .message-avatar {
+            width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #ff2d78, #764ba2);
+            display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; overflow: hidden;
+        }
+        .message-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .message-body { flex: 1; }
+        .message-name { color: #ff6b9d; font-size: 13px; font-weight: bold; }
+        .message-text { color: rgba(255,255,255,0.85); font-size: 14px; margin-top: 3px; line-height: 1.4; }
+        .message-time { color: rgba(255,255,255,0.3); font-size: 11px; margin-top: 3px; }
+        .message-date-divider { color: rgba(255,45,120,0.6); font-size: 12px; text-align: center; padding: 10px 0; font-weight: bold; }
+        
+        /* ====== 直播设置页 ====== */
+        .setup-screen {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, #1a0a1a 0%, #0f0510 100%); z-index: 300; flex-direction: column;
+        }
+        .setup-screen.active { display: flex; }
+        .setup-header { padding: 60px 20px 20px; text-align: center; }
+        .setup-header h2 { color: white; font-size: 24px; text-shadow: 0 0 20px rgba(255,45,120,0.5); }
+        .setup-content { flex: 1; padding: 30px 20px; }
+        .setup-item { margin-bottom: 30px; }
+        .setup-label { color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 12px; }
+        .setup-input {
+            width: 100%; padding: 18px; background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,45,120,0.4); border-radius: 15px;
+            color: white; font-size: 16px; outline: none;
+        }
+        .setup-input::placeholder { color: rgba(255,255,255,0.3); }
+        .category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .category-item {
+            padding: 18px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px; text-align: center; cursor: pointer; color: rgba(255,255,255,0.8);
+        }
+        .category-item.selected { background: linear-gradient(135deg, #ff2d78, #ff6b9d); border-color: #ff2d78; color: white; }
+        .category-icon { font-size: 28px; margin-bottom: 8px; }
+        .gender-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .gender-item {
+            padding: 16px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px; text-align: center; cursor: pointer; color: rgba(255,255,255,0.8);
+        }
+        .gender-item.selected { background: linear-gradient(135deg, #2dabff, #6bc5ff); border-color: #2dabff; color: white; }
+        .go-live-btn {
+            margin: 20px; padding: 20px; background: linear-gradient(135deg, #ff2d78, #ff6b9d);
+            border: none; border-radius: 15px; color: white; font-size: 18px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 10px 40px rgba(255,45,120,0.4);
+        }
+        .close-setup {
+            position: absolute; top: 50px; right: 20px; color: white; font-size: 24px; cursor: pointer; z-index: 10;
+        }
+        
+        /* ====== 直播间 ====== */
+        .live-room { display: none; width: 100%; height: 100%; position: relative; background: #000; }
+        .live-room.active { display: block; }
+        .camera-container { width: 100%; height: 100%; position: relative; background: #1a0a1a; overflow: hidden; }
+        #camera-video { width: 100%; height: 100%; object-fit: cover; }
+        .camera-placeholder {
+            width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: linear-gradient(180deg, #2d1520 0%, #1a0a10 100%); color: white;
+        }
+        .camera-icon { font-size: 100px; margin-bottom: 20px; opacity: 0.5; }
+        .camera-btn {
+            padding: 15px 40px; background: linear-gradient(135deg, #ff2d78, #ff6b9d);
+            border: none; border-radius: 25px; color: white; font-size: 16px; cursor: pointer;
+        }
+        
+        .live-top-bar {
+            position: absolute; top: 0; left: 0; right: 0; padding: 50px 15px 20px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, transparent 100%);
+            display: flex; justify-content: space-between; align-items: flex-start; z-index: 10;
+        }
+        .host-info-bar {
+            display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.7);
+            padding: 8px 15px; border-radius: 30px; backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,45,120,0.3);
+        }
+        .host-avatar-small {
+            width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #ff2d78, #ff6b9d);
+            display: flex; align-items: center; justify-content: center; font-size: 20px; overflow: hidden; border: 2px solid #ff2d78;
+        }
+        .host-avatar-small img { width: 100%; height: 100%; object-fit: cover; }
+        .host-name-info h3 { color: white; font-size: 14px; }
+        .host-name-info p { color: #ff6b9d; font-size: 11px; }
+        .live-stats-top { display: flex; gap: 6px; flex-direction: column; align-items: flex-end; }
+        .stat-badge {
+            background: rgba(255,45,120,0.8); color: white; padding: 6px 12px;
+            border-radius: 18px; font-size: 12px; font-weight: bold;
+        }
+        .hot-badge { background: linear-gradient(135deg, #ff0000, #ff6600); animation: hotPulse 1s infinite; }
+        @keyframes hotPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        
+        .danmu-container {
+            position: absolute; bottom: 230px; left: 10px; right: 10px; height: 280px;
+            overflow-y: auto; overflow-x: hidden; z-index: 5; padding-right: 5px;
+            mask-image: linear-gradient(to bottom, transparent, black 10%);
+        }
+        .danmu-container::-webkit-scrollbar { width: 3px; }
+        .danmu-container::-webkit-scrollbar-thumb { background: rgba(255,45,120,0.5); border-radius: 3px; }
+        .danmu-unread-badge {
+            position: absolute; bottom: 220px; left: 50%; transform: translateX(-50%);
+            background: linear-gradient(135deg, #ff2d78, #ff6ec7); color: #fff; font-size: 12px;
+            padding: 6px 14px; border-radius: 16px; z-index: 6; cursor: pointer;
+            box-shadow: 0 2px 8px rgba(255,45,120,0.4); display: none;
+            animation: unreadPulse 1.5s infinite;
+        }
+        .danmu-unread-badge.show { display: block; }
+        @keyframes unreadPulse { 0%, 100% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.08); } }
+        .danmu-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; animation: danmuSlide 0.3s ease; }
+        @keyframes danmuSlide { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        .danmu-avatar {
+            width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, #ff2d78, #764ba2);
+            display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0;
+        }
+        .danmu-content {
+            background: rgba(0,0,0,0.7); padding: 8px 12px; border-radius: 16px;
+            color: white; font-size: 13px; max-width: calc(100% - 45px); word-wrap: break-word;
+        }
+        .danmu-content.host { background: linear-gradient(135deg, rgba(255,45,120,0.6), rgba(255,107,157,0.6)); border: 1px solid #ff2d78; }
+        .danmu-content.gift { background: linear-gradient(135deg, rgba(255,215,0,0.3), rgba(255,237,78,0.3)); border: 1px solid rgba(255,215,0,0.6); }
+        .danmu-content.dirty { background: rgba(139,0,139,0.5); border: 1px solid rgba(255,105,180,0.6); }
+        .danmu-content.h { background: linear-gradient(135deg, rgba(220,20,60,0.6), rgba(139,0,0,0.6)); border: 1px solid #ff0040; }
+        .danmu-name { color: #ff6b9d; font-weight: bold; margin-right: 4px; }
+        .danmu-name.vip { color: #ffd700; }
+        .danmu-name.host { color: #fff; }
+        
+        .fan-reaction-hint {
+            position: absolute; top: 110px; left: 15px; right: 15px;
+            background: linear-gradient(135deg, rgba(255,45,120,0.95), rgba(255,107,157,0.95));
+            color: white; padding: 12px 18px; border-radius: 15px; font-size: 14px; z-index: 15;
+            display: none; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 5px 30px rgba(255,45,120,0.5);
+        }
+        .fan-reaction-hint.active { display: block; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .fan-reaction-title { font-weight: bold; margin-bottom: 5px; }
+        
+        .gift-effect-container {
+            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center; pointer-events: none; z-index: 50;
+        }
+        .gift-effect-emoji {
+            font-size: 120px; animation: giftBounce 2s ease-out forwards;
+            filter: drop-shadow(0 0 30px rgba(255,215,0,0.8));
+        }
+        @keyframes giftBounce {
+            0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+            30% { transform: scale(1.3) rotate(10deg); opacity: 1; }
+            50% { transform: scale(1) rotate(0deg); }
+            80% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.5); opacity: 0; }
+        }
+        .gift-effect-text { color: #ffd700; font-size: 18px; font-weight: bold; margin-top: 10px; text-shadow: 0 0 20px rgba(255,215,0,0.8); }
+        
+        .live-controls {
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 15px 40px;
+            background: linear-gradient(0deg, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
+            z-index: 10;
+        }
+        .control-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .control-btns { display: flex; gap: 8px; }
+        .control-btn {
+            padding: 9px 16px; background: rgba(255,45,120,0.3); border: 1px solid rgba(255,45,120,0.5);
+            border-radius: 20px; color: white; font-size: 12px; cursor: pointer;
+        }
+        .control-btn.end { background: #ff0000; border: none; }
+        .control-btn.pk { background: linear-gradient(135deg, #ff2d78, #8b008b); border: none; }
+        .control-btn.prop { background: linear-gradient(135deg, #8b008b, #ff2d78); border: none; }
+        .control-btn.camera { background: rgba(255,255,255,0.2); }
+        .control-btn.close-live { background: rgba(255,255,255,0.2); }
+        
+        .host-input-area { display: flex; gap: 10px; align-items: center; }
+        .voice-btn-main {
+            flex: 1; padding: 15px; background: linear-gradient(135deg, rgba(255,45,120,0.3), rgba(255,107,157,0.3));
+            border: 2px solid #ff2d78; border-radius: 30px; color: white; font-size: 14px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .voice-btn-main.recording { background: rgba(255,0,0,0.5); border-color: #ff0000; animation: pulseRecord 0.8s infinite; }
+        @keyframes pulseRecord {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,0,0,0.7); }
+            50% { transform: scale(1.02); box-shadow: 0 0 20px 10px rgba(255,0,0,0); }
+        }
+        .text-input-btn, .preset-btn {
+            width: 48px; height: 48px; background: rgba(255,45,120,0.3);
+            border: 1px solid rgba(255,45,120,0.5); border-radius: 50%;
+            color: white; font-size: 18px; cursor: pointer;
+        }
+        
+        .preset-modal {
+            display: none; position: absolute; bottom: 0; left: 0; right: 0;
+            background: rgba(10,5,10,0.98); padding: 25px 20px; z-index: 100;
+            border-radius: 25px 25px 0 0; border-top: 2px solid #ff2d78; max-height: 70vh; overflow-y: auto;
+        }
+        .preset-modal.active { display: block; }
+        .preset-title { color: white; font-size: 16px; margin-bottom: 15px; text-align: center; }
+        .preset-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .preset-item {
+            padding: 12px 15px; background: rgba(255,45,120,0.2); border: 1px solid rgba(255,45,120,0.4);
+            border-radius: 12px; color: white; font-size: 13px; cursor: pointer; text-align: center;
+        }
+        .preset-item:active { background: rgba(255,45,120,0.5); transform: scale(1.02); }
+        .preset-category { color: #ff6b9d; font-size: 11px; margin-bottom: 4px; }
+        
+        .text-input-modal {
+            display: none; position: absolute; bottom: 0; left: 0; right: 0;
+            background: rgba(10,5,10,0.98); padding: 25px 20px; z-index: 100;
+            border-radius: 25px 25px 0 0; border-top: 2px solid #ff2d78;
+        }
+        .text-input-modal.active { display: block; }
+        .text-input-area { display: flex; gap: 10px; align-items: center; }
+        .text-input-field {
+            flex: 1; padding: 15px 20px; background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,45,120,0.5); border-radius: 25px;
+            color: white; font-size: 15px; outline: none;
+        }
+        .text-input-field::placeholder { color: rgba(255,255,255,0.4); }
+        .send-text-btn {
+            width: 48px; height: 48px; background: linear-gradient(135deg, #ff2d78, #ff6b9d);
+            border: none; border-radius: 50%; color: white; font-size: 18px; cursor: pointer;
+        }
+        
+        .voice-recording-overlay {
+            display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85); z-index: 200;
+            align-items: center; justify-content: center; flex-direction: column;
+        }
+        .voice-recording-overlay.active { display: flex; }
+        .voice-wave {
+            width: 120px; height: 120px; background: linear-gradient(135deg, #ff2d78, #ff0000);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 60px; animation: voiceWave 0.8s infinite;
+        }
+        @keyframes voiceWave { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+        .voice-text { color: white; margin-top: 25px; font-size: 16px; }
+        .voice-cancel-hint { color: rgba(255,255,255,0.5); font-size: 13px; margin-top: 10px; }
+        
+        .pk-bar {
+            position: absolute; top: 100px; left: 15px; right: 15px;
+            background: rgba(0,0,0,0.85); border-radius: 20px; padding: 15px;
+            display: none; z-index: 15; backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,45,120,0.5);
+        }
+        .pk-bar.active { display: block; }
+        .pk-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: white; }
+        .pk-vs { font-size: 20px; font-weight: bold; color: #ff2d78; }
+        .pk-progress-container { height: 14px; background: rgba(255,255,255,0.2); border-radius: 7px; overflow: hidden; }
+        .pk-fill { height: 100%; background: linear-gradient(90deg, #ff2d78, #ff6b9d); border-radius: 7px; transition: width 0.5s; }
+        
+        .close-btn { position: absolute; top: 10px; right: 15px; color: white; font-size: 24px; cursor: pointer; z-index: 10; }
+        
+        /* ====== v8 道具表演弹窗 ====== */
+        .prop-modal {
+            display: none; position: absolute; bottom: 0; left: 0; right: 0;
+            background: rgba(10,5,10,0.98); padding: 25px 20px 30px; z-index: 100;
+            border-radius: 25px 25px 0 0; border-top: 2px solid #ff2d78; max-height: 75vh; overflow-y: auto;
+        }
+        .prop-modal.active { display: block; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .prop-modal-title { color: white; font-size: 17px; margin-bottom: 15px; text-align: center; text-shadow: 0 0 15px rgba(255,45,120,0.5); }
+        .prop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+        /* ====== v8.1 道具动作弹窗（屏幕中央，不混入弹幕） ====== */
+        .prop-action-backdrop {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7); z-index: 9998;
+            backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+        }
+        .prop-action-backdrop.active { display: block; animation: fadeIn 0.25s ease; }
+        .prop-action-modal {
+            display: none; position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, rgba(30,5,20,0.98), rgba(50,10,30,0.98));
+            border: 2px solid #ff2d78;
+            border-radius: 18px;
+            padding: 22px 20px 18px;
+            z-index: 9999;
+            width: 88vw; max-width: 440px;
+            max-height: 80vh; overflow-y: auto;
+            box-shadow: 0 10px 50px rgba(255,45,120,0.7), inset 0 0 30px rgba(255,45,120,0.1);
+        }
+        .prop-action-modal.active {
+            display: block;
+            animation: propPopIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes propPopIn {
+            0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        .prop-action-text {
+            color: #ffe6f0; font-size: 14.5px; line-height: 1.85;
+            white-space: pre-wrap; text-align: left;
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        .prop-action-text strong {
+            color: #ff2d78; font-size: 16px; font-weight: bold;
+            display: block; margin: 0 0 12px; text-align: center;
+            text-shadow: 0 0 12px rgba(255,45,120,0.8);
+            border-bottom: 1px solid rgba(255,45,120,0.3);
+            padding-bottom: 8px;
+        }
+        .prop-action-close {
+            text-align: center; margin-top: 14px; padding: 10px;
+            color: #ff6b9d; font-size: 13px;
+            border-top: 1px solid rgba(255,45,120,0.25);
+            cursor: pointer; user-select: none;
+        }
+        .prop-action-close:active { color: #ff2d78; }
+        .prop-grid-locked { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
+        .prop-item {
+            padding: 15px 8px; background: linear-gradient(135deg, rgba(255,45,120,0.2), rgba(139,0,139,0.2));
+            border: 1px solid rgba(255,45,120,0.5); border-radius: 15px; text-align: center; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .prop-item:active { transform: scale(0.95); background: linear-gradient(135deg, rgba(255,45,120,0.5), rgba(139,0,139,0.5)); }
+        .prop-item.locked { opacity: 0.4; cursor: not-allowed; }
+        .prop-item.locked:active { transform: none; }
+        .prop-icon { font-size: 36px; margin-bottom: 5px; }
+        .prop-name { color: white; font-size: 13px; font-weight: bold; }
+        .prop-count { color: rgba(255,107,157,0.8); font-size: 10px; margin-top: 3px; }
+        .prop-item.locked .prop-count { color: rgba(255,255,255,0.3); }
+        
+        /* ====== 主页手动存档按钮 ====== */
+        .manual-save-btn {
+            position: fixed; top: 50px; right: 15px; z-index: 50;
+            padding: 8px 14px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,45,120,0.4);
+            border-radius: 18px; color: white; font-size: 11px; cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+        .manual-save-btn:active { background: rgba(255,45,120,0.5); }
+        .auto-save-hint {
+            position: fixed; bottom: 15px; right: 15px; z-index: 50;
+            padding: 6px 12px; background: rgba(0,0,0,0.5); border-radius: 14px;
+            color: rgba(255,107,157,0.7); font-size: 10px; backdrop-filter: blur(10px);
+        }
+
+        /* ====== 裁剪模态框 ====== */
+        .crop-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; flex-direction: column; }
+        .crop-modal.show { display: flex; }
+        .crop-header { padding: 50px 20px 15px; display: flex; justify-content: space-between; align-items: center; background: #0a0a0a; }
+        .crop-cancel, .crop-confirm { color: white; font-size: 16px; cursor: pointer; padding: 8px 12px; }
+        .crop-confirm { color: #ff2d78; font-weight: bold; }
+        .crop-title { color: white; font-size: 16px; font-weight: bold; }
+        .crop-stage { flex: 1; position: relative; overflow: hidden; background: #1a0a1a; touch-action: none; }
+        .crop-image-wrap { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); cursor: grab; }
+        .crop-image-wrap.dragging { cursor: grabbing; }
+        .crop-image-wrap img { display: block; max-width: none; pointer-events: none; user-select: none; -webkit-user-drag: none; }
+        .crop-frame { position: absolute; pointer-events: none; border: 2px solid #ff2d78; box-shadow: 0 0 0 9999px rgba(0,0,0,0.7); }
+        .crop-frame.circle { border-radius: 50%; }
+        .crop-frame.rect { border-radius: 8px; }
+        .crop-controls { padding: 20px; background: #0a0a0a; display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; }
+        .crop-ctrl-btn { padding: 10px 18px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,45,120,0.3); border-radius: 20px; color: white; font-size: 14px; cursor: pointer; min-width: 56px; }
+        .crop-ctrl-btn:active { background: rgba(255,45,120,0.4); }
+        .crop-ctrl-btn.reset { background: rgba(255,45,120,0.2); }
+        .crop-mode-toggle { display: flex; gap: 8px; padding: 0 20px 12px; background: #0a0a0a; }
+        .crop-mode-btn { flex: 1; padding: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,45,120,0.3); border-radius: 16px; color: rgba(255,255,255,0.6); font-size: 12px; cursor: pointer; text-align: center; }
+        .crop-mode-btn.active { background: linear-gradient(135deg, #ff2d78, #ff6b9d); color: white; border-color: #ff2d78; }
+
+        /* ====== 主页头像调整按钮 ====== */
+        .avatar-edit-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); border-radius: 22px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 12px; opacity: 0; transition: opacity 0.2s;
+        }
+        .profile-avatar:active .avatar-edit-overlay { opacity: 1; }
+
+        /* ====== 身材类型选择 ====== */
+        .bodytype-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .bodytype-item {
+            padding: 12px 6px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,45,120,0.2);
+            border-radius: 12px; text-align: center; cursor: pointer; color: rgba(255,255,255,0.85);
+            font-size: 12px;
+        }
+        .bodytype-item.selected { background: linear-gradient(135deg, #ff2d78, #ff6b9d); border-color: #ff2d78; color: white; }
+        .bodytype-item .bodytype-icon { font-size: 22px; margin-bottom: 4px; }
+        .bodytype-item .bodytype-label { font-weight: bold; }
+        .bodytype-item .bodytype-sub { font-size: 10px; opacity: 0.8; margin-top: 2px; }
+        .bodytype-tag {
+            display: inline-block; margin-top: 4px; padding: 2px 8px;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,45,120,0.3);
+            border-radius: 10px; font-size: 10px; color: rgba(255,255,255,0.7);
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- 主页（个人空间） -->
+        <div class="profile-screen" id="profile-screen">
+            <div class="profile-header">
+                <div class="profile-bg" id="profile-bg" onclick="changeBg()"></div>
+                <input type="file" id="bg-input" accept="image/*" onchange="handleBgChange(event)">
+                <div class="profile-header-content">
+                    <div class="profile-avatar" id="profile-avatar" onclick="handleAvatarClick()">😈<div class="avatar-edit-overlay">点我上传/调整</div></div>
+                    <input type="file" id="avatar-input" accept="image/*" onchange="handleAvatarChange(event)">
+                    <div class="profile-id-section">
+                        <div class="profile-id-row">
+                            <span class="profile-id" id="profile-id">你的小妖精</span>
+                            <span class="edit-icon" onclick="editId()">✏️</span>
+                        </div>
+                        <div class="profile-bio" id="profile-bio" onclick="editBio()">点击设置个签...</div>
+                        <div class="profile-gender-tag" id="profile-gender-tag" onclick="toggleGender()">👩 女主播 · 点我切换</div>
+                        <div class="bodytype-tag" id="profile-bodytype-tag" onclick="openSetup()">📐 平乳 · 点我改身材</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-stats">
+                <div class="profile-stat"><div class="profile-stat-value" id="stat-fans">0</div><div class="profile-stat-label">粉丝</div></div>
+                <div class="profile-stat"><div class="profile-stat-value" id="stat-follow">0</div><div class="profile-stat-label">关注</div></div>
+                <div class="profile-stat"><div class="profile-stat-value" id="stat-likes">0</div><div class="profile-stat-label">获赞</div></div>
+                <div class="profile-stat"><div class="profile-stat-value income" id="stat-income">0</div><div class="profile-stat-label">总收益</div></div>
+            </div>
+            
+            <div class="profile-actions">
+                <button class="action-btn" onclick="openSetup()">🎥 开始直播</button>
+                <button class="action-btn secondary" onclick="editProfile()">✏️ 编辑资料</button>
+            </div>
+            
+            <div class="profile-section">
+                <div class="section-title">💰 收益记录</div>
+                <div class="income-list" id="income-list">
+                    <div class="empty-hint">还没有收益记录，开始直播赚钱吧~</div>
+                </div>
+            </div>
+            
+            <div class="profile-section">
+                <div class="section-title">💬 留言板</div>
+                <div class="message-board" id="message-board">
+                    <div class="empty-hint">还没有留言，直播后粉丝会来打卡~</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 直播设置 -->
+        <div class="setup-screen" id="setup-screen">
+            <span class="close-setup" onclick="closeSetup()">×</span>
+            <div class="setup-header"><h2>🎥 开启你的直播</h2></div>
+            <div class="setup-content">
+                <div class="setup-item">
+                    <div class="setup-label">主播性别</div>
+                    <div class="gender-grid">
+                        <div class="gender-item" id="gender-female" onclick="selectGender('female')"><div class="gender-icon">👩</div><div>女主播</div></div>
+                        <div class="gender-item" id="gender-male" onclick="selectGender('male')"><div class="gender-icon">👨</div><div>男主播</div></div>
+                    </div>
+                </div>
+                <div class="setup-item">
+                    <div class="setup-label">身材类型</div>
+                    <div class="bodytype-grid" id="bodytype-grid"></div>
+                </div>
+                <div class="setup-item">
+                    <div class="setup-label">直播标题（越骚越吸睛）</div>
+                    <input type="text" class="setup-input" id="live-title-input" placeholder="例如：深夜寂寞 等你来撩...">
+                </div>
+                <div class="setup-item">
+                    <div class="setup-label">直播类型</div>
+                    <div class="category-grid">
+                        <div class="category-item selected" onclick="selectCategory(this, '聊天')"><div class="category-icon">💋</div><div>深夜聊天</div></div>
+                        <div class="category-item" onclick="selectCategory(this, '跳舞')"><div class="category-icon">💃</div><div>热舞</div></div>
+                        <div class="category-item" onclick="selectCategory(this, '唱歌')"><div class="category-icon">🎤</div><div>暧昧点歌</div></div>
+                        <div class="category-item" onclick="selectCategory(this, 'ASMR')"><div class="category-icon">👂</div><div>耳边细语</div></div>
+                        <div class="category-item" onclick="selectCategory(this, '换装')"><div class="category-icon">👙</div><div>换装秀</div></div>
+                        <div class="category-item" onclick="selectCategory(this, 'PK')"><div class="category-icon">🔥</div><div>连麦PK</div></div>
+                    </div>
+                </div>
+            </div>
+            <button class="go-live-btn" onclick="startLive()">🚀 开始直播</button>
+        </div>
+        
+        <!-- 直播间 -->
+        <div class="live-room" id="live-room">
+            <div class="camera-container" id="camera-container">
+                <video id="camera-video" autoplay playsinline></video>
+                <div class="camera-placeholder" id="camera-placeholder">
+                    <div class="camera-icon">📷</div>
+                    <button class="camera-btn" onclick="startCamera()">开启摄像头</button>
+                </div>
+            </div>
+            
+            <div class="pk-bar" id="pk-bar">
+                <div class="pk-header"><span>我 🔥 <span id="pk-my-score">0</span></span><span class="pk-vs">VS</span><span><span id="pk-opp-score">0</span> 对面</span></div>
+                <div class="pk-progress-container"><div class="pk-fill" id="pk-fill" style="width: 50%"></div></div>
+            </div>
+            
+            <div class="fan-reaction-hint" id="fan-reaction-hint"><div class="fan-reaction-title">💬 粉丝炸了</div><div id="fan-reaction-text"></div></div>
+            <div class="danmu-container" id="danmu-container"></div>
+            <div class="danmu-unread-badge" id="danmu-unread-badge" onclick="scrollToBottomDanmu()">↓ <span id="danmu-unread-count">0</span> 条新弹幕</div>
+            <div class="gift-effect-container" id="gift-effect"></div>
+            
+            <div class="live-top-bar">
+                <div class="host-info-bar">
+                    <div class="host-avatar-small" id="host-avatar-bar">😈</div>
+                    <div class="host-name-info"><h3 id="live-id-display">你的小妖精</h3><p>🔥 在线热聊</p></div>
+                </div>
+                <div class="live-stats-top">
+                    <span class="stat-badge hot-badge">🔥 9999+</span>
+                    <span class="stat-badge">👥 <span id="viewer-count">0</span></span>
+                    <span class="stat-badge">❤️ <span id="like-count">0</span></span>
+                </div>
+            </div>
+            
+            <div class="voice-recording-overlay" id="voice-overlay">
+                <div class="voice-wave">🎙️</div>
+                <div class="voice-text">正在录音...</div>
+                <div class="voice-cancel-hint">松开发送</div>
+            </div>
+            
+            <div class="live-controls">
+                <div class="control-row">
+                    <div class="control-btns">
+                        <button class="control-btn pk" onclick="startPK()">⚔️ PK</button>
+                        <button class="control-btn prop" onclick="openPropShow()">🍆 道具</button>
+                        <button class="control-btn camera" onclick="toggleCamera()">📷</button>
+                    </div>
+                    <button class="control-btn close-live" onclick="exitLive()">⬅ 退出</button>
+                    <button class="control-btn end" onclick="endLive()">🔴 结束</button>
+                </div>
+                <div class="host-input-area">
+                    <button class="voice-btn-main" id="voice-btn" ontouchstart="startVoiceReply(event)" ontouchend="endVoiceReply(event)" onmousedown="startVoiceReply(event)" onmouseup="endVoiceReply(event)">🎙️ 按住说话撩粉</button>
+                    <button class="preset-btn" onclick="openPreset()">💬</button>
+                    <button class="text-input-btn" onclick="openTextInput()">⌨️</button>
+                </div>
+            </div>
+            
+            <div class="preset-modal" id="preset-modal">
+                <span class="close-btn" onclick="closePreset()">×</span>
+                <div class="preset-title">🔥 选一句话撩粉</div>
+                <div class="preset-grid" id="preset-grid"></div>
+            </div>
+            
+            <div class="text-input-modal" id="text-input-modal">
+                <span class="close-btn" onclick="closeTextInput()">×</span>
+                <div class="text-input-area">
+                    <input type="text" class="text-input-field" id="text-input-field" placeholder="输入你想说的话..." onkeypress="if(event.key==='Enter')sendTextReply()">
+                    <button class="send-text-btn" onclick="sendTextReply()">➤</button>
+                </div>
+            </div>
+            
+            <!-- v8 道具表演弹窗 -->
+            <div class="prop-modal" id="prop-modal">
+                <span class="close-btn" onclick="closePropShow()">×</span>
+                <div class="prop-modal-title">🍆 道具表演 · 选一个开搞 🔞</div>
+                <div class="prop-grid" id="prop-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- v8.1 道具动作弹窗（屏幕中央，不混入弹幕） -->
+    <div class="prop-action-backdrop" id="prop-action-backdrop" onclick="closePropAction()"></div>
+    <div class="prop-action-modal" id="prop-action-modal">
+        <div class="prop-action-text" id="prop-action-text"></div>
+        <div class="prop-action-close" onclick="closePropAction()">👆 点击任意处关闭</div>
+    </div>
+
+    <!-- v8.5 头像/背景 裁剪模态框 -->
+    <div class="crop-modal" id="crop-modal">
+        <div class="crop-header">
+            <span class="crop-cancel" onclick="closeCropModal()">取消</span>
+            <span class="crop-title" id="crop-title">调整图片</span>
+            <span class="crop-confirm" onclick="confirmCrop()">完成</span>
+        </div>
+        <div class="crop-mode-toggle" id="crop-mode-toggle">
+            <div class="crop-mode-btn active" id="crop-mode-contain" onclick="setCropMode('contain')">完整显示</div>
+            <div class="crop-mode-btn" id="crop-mode-cover" onclick="setCropMode('cover')">裁剪填满</div>
+        </div>
+        <div class="crop-stage" id="crop-stage">
+            <div class="crop-image-wrap" id="crop-image-wrap">
+                <img id="crop-image" src="" alt="">
+            </div>
+            <div class="crop-frame circle" id="crop-frame"></div>
+        </div>
+        <div class="crop-controls">
+            <button class="crop-ctrl-btn" onclick="cropZoom(0.85)">−</button>
+            <span style="color:rgba(255,255,255,0.7);font-size:13px;min-width:54px;text-align:center;" id="crop-zoom-text">100%</span>
+            <button class="crop-ctrl-btn" onclick="cropZoom(1.18)">+</button>
+            <button class="crop-ctrl-btn reset" onclick="cropReset()">↺ 重置</button>
+            <button class="crop-ctrl-btn" id="crop-target-btn" onclick="switchCropTarget()" style="display:none;">换：调整头像</button>
+        </div>
+    </div>
+    
+    <!-- 主页手动存档按钮 + 自动保存提示 -->
+    <button class="manual-save-btn" onclick="manualSave()">💾 手动存档</button>
+    <div class="auto-save-hint" id="auto-save-hint">🟢 自动存档中...</div>
+
+<script>
+// ====== 全局数据 ======
+let gameState = {
+    myId: '你的小妖精',
+    myAvatar: null,
+    myBg: null,
+    myBio: '点击设置个签...',
+    myGender: 'female',
+    myBodyType: null,
+    myFans: 1680000,
+    myFollow: 12,
+    myLikes: 5800000,
+    myIncome: 0,
+    isLive: false,
+    liveTitle: '',
+    liveCategory: '聊天',
+    viewerCount: 0,
+    likeCount: 0,
+    giftIncome: 0,
+    newFans: 0,
+    isRecording: false,
+    danmuInterval: null,
+    pkInterval: null,
+    isPK: false,
+    cameraActive: false,
+    stream: null,
+    // 存档数据
+    incomeHistory: [],
+    messageBoard: [],
+    lastMessageDate: '',
+    totalLives: 0,
+    totalGifts: 0,
+    propShows: {},
+    propCollection: []
+};
+
+// ====== 存档系统 v8.1 - 即时存档（无防抖） ======
+const SAVE_KEY = 'live_sim_v8_save';
+let _lastSaveTime = 0;
+let _saveCount = 0;
+let _isSaving = false;
+let _saveError = null;
+
+function saveGame(force = true) {
+    // 检测 localStorage 是否可用
+    try {
+        const testKey = '__save_test__';
+        localStorage.setItem(testKey, '1');
+        localStorage.removeItem(testKey);
+    } catch (e) {
+        _saveError = 'localStorage 不可用：' + e.message;
+        showToast('⚠️ 存档失败：浏览器存储被禁用');
+        return false;
+    }
+    
+    if (_isSaving) return false;
+    _isSaving = true;
+    try {
+        const saveData = {
+            myId: gameState.myId,
+            myAvatar: gameState.myAvatar,
+            myBg: gameState.myBg,
+            myBio: gameState.myBio,
+            myFans: gameState.myFans,
+            myFollow: gameState.myFollow,
+            myLikes: gameState.myLikes,
+            myIncome: gameState.myIncome,
+            incomeHistory: gameState.incomeHistory,
+            messageBoard: gameState.messageBoard,
+            lastMessageDate: gameState.lastMessageDate,
+            totalLives: gameState.totalLives || 0,
+            totalGifts: gameState.totalGifts || 0,
+            myGender: gameState.myGender || 'female',
+            myBodyType: gameState.myBodyType || (gameState.myGender === 'male' ? 'puppy' : 'flat'),
+            // 道具表演系统进度
+            propShows: gameState.propShows || {},
+            propCollection: gameState.propCollection || [],
+            saveTime: Date.now(),
+            saveVersion: 4
+        };
+        localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+        _lastSaveTime = Date.now();
+        _saveCount++;
+        _saveError = null;
+        updateSaveHint();
+        return true;
+    } catch (e) {
+        _saveError = e.message;
+        console.error('存档失败:', e);
+        showToast('⚠️ 存档失败：' + e.message);
+        return false;
+    } finally {
+        _isSaving = false;
+    }
+}
+
+function loadGame() {
+    try {
+        const saved = localStorage.getItem(SAVE_KEY);
+        if (saved) {
+            const data = JSON.parse(saved);
+            if (data.myId) gameState.myId = data.myId;
+            if (data.myAvatar !== undefined) gameState.myAvatar = data.myAvatar;
+            if (data.myBg !== undefined) gameState.myBg = data.myBg;
+            if (data.myBio) gameState.myBio = data.myBio;
+            if (typeof data.myFans === 'number') gameState.myFans = data.myFans;
+            if (typeof data.myFollow === 'number') gameState.myFollow = data.myFollow;
+            if (typeof data.myLikes === 'number') gameState.myLikes = data.myLikes;
+            if (typeof data.myIncome === 'number') gameState.myIncome = data.myIncome;
+            if (Array.isArray(data.incomeHistory)) gameState.incomeHistory = data.incomeHistory;
+            if (Array.isArray(data.messageBoard)) gameState.messageBoard = data.messageBoard;
+            if (data.lastMessageDate) gameState.lastMessageDate = data.lastMessageDate;
+            if (typeof data.totalLives === 'number') gameState.totalLives = data.totalLives;
+            if (typeof data.totalGifts === 'number') gameState.totalGifts = data.totalGifts;
+            if (data.propShows) gameState.propShows = data.propShows;
+            if (Array.isArray(data.propCollection)) gameState.propCollection = data.propCollection;
+            if (data.myGender === 'male' || data.myGender === 'female') gameState.myGender = data.myGender;
+            if (data.myBodyType) gameState.myBodyType = data.myBodyType;
+            else gameState.myBodyType = gameState.myGender === 'male' ? 'puppy' : 'flat';
+            return true;
+        }
+    } catch (e) {
+        console.error('读档失败:', e);
+    }
+    return false;
+}
+
+// 启动时立即加载
+loadGame();
+updateSaveHint();
+
+// ====== 存档状态显示 ======
+function updateSaveHint() {
+    const hint = document.getElementById('auto-save-hint');
+    if (!hint) return;
+    const now = Date.now();
+    const ago = Math.floor((now - _lastSaveTime) / 1000);
+    if (_saveError) {
+        hint.innerHTML = '⚠️ 存档失败';
+        hint.style.color = '#ff4444';
+    } else if (ago < 3) {
+        hint.innerHTML = `💾 已存档 (${_saveCount}次)`;
+        hint.style.color = '#4eff4e';
+    } else {
+        hint.innerHTML = `🕐 ${ago}秒前已存`;
+        hint.style.color = 'rgba(255,107,157,0.7)';
+    }
+}
+// 每秒刷新一次存档提示
+setInterval(updateSaveHint, 1000);
+
+// ====== 多重触发自动保存 ======
+// 1) 退出/刷新页面时保存
+window.addEventListener('beforeunload', () => {
+    saveGame(true);
+});
+// 2) 移动端切后台时保存
+window.addEventListener('pagehide', () => saveGame(true));
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') saveGame(true);
+});
+// 3) 每5秒自动保存（更频繁）
+setInterval(() => saveGame(true), 5000);
+
+// 4) 暴露手动存档按钮
+function manualSave() {
+    const ok = saveGame(true);
+    if (ok) {
+        showToast('💾 已手动存档');
+    } else {
+        showToast('⚠️ 存档失败，请检查浏览器存储');
+    }
+}
+
+// 5) 检测关键数据变化时自动存档（防丢失）
+let _lastFans = 0, _lastIncome = 0, _lastMessageCount = 0;
+setInterval(() => {
+    if (gameState.myFans !== _lastFans || 
+        gameState.myIncome !== _lastIncome || 
+        gameState.messageBoard.length !== _lastMessageCount) {
+        saveGame(true);
+        _lastFans = gameState.myFans;
+        _lastIncome = gameState.myIncome;
+        _lastMessageCount = gameState.messageBoard.length;
+    }
+}, 2000);
+
+// ====== 主页相关 ======
+function changeAvatar() { document.getElementById('avatar-input').click(); }
+function changeBg() { document.getElementById('bg-input').click(); }
+// 头像点击：没图→上传；有图→开裁剪（长按头像区域可重新上传）
+function handleAvatarClick() {
+    if (gameState.myAvatar) {
+        openCropModal('avatar');
+    } else {
+        changeAvatar();
+    }
+}
+
+function handleAvatarChange(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            gameState.myAvatar = e.target.result;
+            // 强制默认contain模式（完整显示）
+            openCropModal('avatar', e.target.result, 'contain');
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function handleBgChange(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            gameState.myBg = e.target.result;
+            // 默认cover模式（裁剪填满）
+            openCropModal('bg', e.target.result, 'cover');
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// ====== v8.5 裁剪模态框 ======
+let cropState = {
+    type: 'avatar',          // 'avatar' | 'bg'
+    imageSrc: '',
+    mode: 'contain',         // 'contain' | 'cover'
+    naturalW: 0,
+    naturalH: 0,
+    scale: 1,                // 用户调整的额外缩放
+    offsetX: 0,              // 像素偏移
+    offsetY: 0,
+    minScale: 1,
+    maxScale: 4,
+    dragging: false,
+    startX: 0,
+    startY: 0,
+    startOffsetX: 0,
+    startOffsetY: 0,
+    lastPinchDist: 0
+};
+
+function openCropModal(type, src, mode) {
+    cropState.type = type || cropState.type;
+    cropState.mode = mode || (type === 'bg' ? 'cover' : 'contain');
+    // 优先用传入的src，否则用gameState的
+    if (src) cropState.imageSrc = src;
+    else if (type === 'avatar') cropState.imageSrc = gameState.myAvatar;
+    else cropState.imageSrc = gameState.myBg;
+    if (!cropState.imageSrc) {
+        showToast('⚠️ 没有图片可调整');
+        return;
+    }
+    document.getElementById('crop-title').textContent = type === 'bg' ? '调整背景' : '调整头像';
+    // 设置图片，等待加载完成后初始化
+    const img = document.getElementById('crop-image');
+    img.onload = () => {
+        cropState.naturalW = img.naturalWidth;
+        cropState.naturalH = img.naturalHeight;
+        initCropLayout();
+    };
+    img.src = cropState.imageSrc;
+    // 切到目标按钮
+    const tbtn = document.getElementById('crop-target-btn');
+    if (tbtn) tbtn.style.display = (type === 'bg' && gameState.myAvatar) ? 'block' : (type === 'avatar' && gameState.myBg ? 'block' : 'none');
+    if (tbtn) tbtn.textContent = type === 'bg' ? '换：调整背景' : '换：调整头像';
+    setCropMode(cropState.mode);
+    document.getElementById('crop-modal').classList.add('show');
+}
+
+function initCropLayout() {
+    const stage = document.getElementById('crop-stage');
+    const wrap = document.getElementById('crop-image-wrap');
+    const frame = document.getElementById('crop-frame');
+    const stageW = stage.clientWidth;
+    const stageH = stage.clientHeight;
+    // 帧大小
+    if (cropState.type === 'avatar') {
+        const size = Math.min(stageW, stageH) * 0.7;
+        frame.className = 'crop-frame circle';
+        frame.style.width = size + 'px';
+        frame.style.height = size + 'px';
+        frame.style.left = '50%';
+        frame.style.top = '50%';
+        frame.style.transform = 'translate(-50%, -50%)';
+    } else {
+        // 背景：保持屏幕宽高比
+        const ratio = 750 / 280;
+        let w = stageW * 0.92, h = w / ratio;
+        if (h > stageH * 0.7) { h = stageH * 0.7; w = h * ratio; }
+        frame.className = 'crop-frame rect';
+        frame.style.width = w + 'px';
+        frame.style.height = h + 'px';
+        frame.style.left = '50%';
+        frame.style.top = '50%';
+        frame.style.transform = 'translate(-50%, -50%)';
+    }
+    // 根据mode决定初始显示
+    setCropMode(cropState.mode, true);
+}
+
+function setCropMode(mode, silent) {
+    cropState.mode = mode;
+    document.getElementById('crop-mode-contain').classList.toggle('active', mode === 'contain');
+    document.getElementById('crop-mode-cover').classList.toggle('active', mode === 'cover');
+    cropReset();
+    if (!silent) updateCropLayout();
+}
+
+function updateCropLayout() {
+    const img = document.getElementById('crop-image');
+    const wrap = document.getElementById('crop-image-wrap');
+    const stage = document.getElementById('crop-stage');
+    const stageW = stage.clientWidth;
+    const stageH = stage.clientHeight;
+    if (cropState.mode === 'contain') {
+        // 完整显示：图片以最小适配 + 缩放
+        const baseScale = Math.min(stageW / cropState.naturalW, stageH / cropState.naturalH) * 0.9;
+        const effScale = baseScale * cropState.scale;
+        const w = cropState.naturalW * effScale;
+        const h = cropState.naturalH * effScale;
+        img.style.width = w + 'px';
+        img.style.height = h + 'px';
+        wrap.style.width = w + 'px';
+        wrap.style.height = h + 'px';
+    } else {
+        // cover模式：图片铺满裁剪框
+        const frame = document.getElementById('crop-frame');
+        const fw = parseFloat(frame.style.width);
+        const fh = parseFloat(frame.style.height);
+        const baseScale = Math.max(fw / cropState.naturalW, fh / cropState.naturalH) * 1.05;
+        const effScale = baseScale * cropState.scale;
+        const w = cropState.naturalW * effScale;
+        const h = cropState.naturalH * effScale;
+        img.style.width = w + 'px';
+        img.style.height = h + 'px';
+        wrap.style.width = w + 'px';
+        wrap.style.height = h + 'px';
+    }
+    applyTransform();
+}
+
+function applyTransform() {
+    const wrap = document.getElementById('crop-image-wrap');
+    // 减去图片自身一半的偏移（因为wrap是top:50% left:50% absolute定位）
+    // 用translate(-50%, -50%)加上用户拖动的偏移
+    wrap.style.transform = `translate(calc(-50% + ${cropState.offsetX}px), calc(-50% + ${cropState.offsetY}px))`;
+    document.getElementById('crop-zoom-text').textContent = Math.round(cropState.scale * 100) + '%';
+}
+
+function cropZoom(factor) {
+    cropState.scale *= factor;
+    cropState.scale = Math.max(cropState.minScale, Math.min(cropState.maxScale, cropState.scale));
+    updateCropLayout();
+}
+
+function cropReset() {
+    cropState.scale = 1;
+    cropState.offsetX = 0;
+    cropState.offsetY = 0;
+    updateCropLayout();
+}
+
+function closeCropModal() {
+    document.getElementById('crop-modal').classList.remove('show');
+    // 清理file input以便下次还能选同一张图
+    document.getElementById('avatar-input').value = '';
+    document.getElementById('bg-input').value = '';
+}
+
+function switchCropTarget() {
+    if (cropState.type === 'avatar' && gameState.myBg) {
+        openCropModal('bg');
+    } else if (cropState.type === 'bg' && gameState.myAvatar) {
+        openCropModal('avatar');
+    }
+}
+
+function confirmCrop() {
+    // 根据当前状态生成裁剪结果图
+    const img = document.getElementById('crop-image');
+    const frame = document.getElementById('crop-frame');
+    if (!img || !img.complete || !cropState.naturalW) {
+        showToast('⚠️ 图片未加载完');
+        return;
+    }
+    const stage = document.getElementById('crop-stage');
+    const stageRect = stage.getBoundingClientRect();
+    const frameRect = frame.getBoundingClientRect();
+    // 帧在stage内的位置
+    const fx = frameRect.left - stageRect.left;
+    const fy = frameRect.top - stageRect.top;
+    const fw = frameRect.width;
+    const fh = frameRect.height;
+    // 输出尺寸
+    let outW, outH;
+    if (cropState.type === 'avatar') { outW = 400; outH = 400; }
+    else { outW = 750; outH = 280; }
+    const canvas = document.createElement('canvas');
+    canvas.width = outW;
+    canvas.height = outH;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#1a0a1a';
+    ctx.fillRect(0, 0, outW, outH);
+    if (cropState.type === 'avatar') {
+        // 圆形clip
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(outW/2, outH/2, outW/2, 0, Math.PI*2);
+        ctx.clip();
+    }
+    // 图片当前显示尺寸（在stage坐标系中）
+    const dispW = parseFloat(img.style.width);
+    const dispH = parseFloat(img.style.height);
+    // 图片在stage中的位置（wrap的左上是top:50% left:50% + 用户偏移，wrap尺寸就是图片尺寸）
+    const wrapRect = document.getElementById('crop-image-wrap').getBoundingClientRect();
+    const imgStageX = wrapRect.left - stageRect.left;
+    const imgStageY = wrapRect.top - stageRect.top;
+    // 帧内可见区域（stage坐标）
+    const visX = fx - imgStageX;
+    const visY = fy - imgStageY;
+    const visW = fw;
+    const visH = fh;
+    // 把可见区域从显示尺寸映射到输出尺寸
+    const scaleX = outW / visW;
+    const scaleY = outH / visH;
+    ctx.drawImage(img,
+        visX * (cropState.naturalW / dispW), visY * (cropState.naturalH / dispH),
+        visW * (cropState.naturalW / dispW), visH * (cropState.naturalH / dispH),
+        0, 0, outW, outH
+    );
+    if (cropState.type === 'avatar') ctx.restore();
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    if (cropState.type === 'avatar') {
+        gameState.myAvatar = dataUrl;
+        document.getElementById('profile-avatar').innerHTML = `<img src="${dataUrl}" alt="avatar">`;
+    } else {
+        gameState.myBg = dataUrl;
+        document.getElementById('profile-bg').style.backgroundImage = `url(${dataUrl})`;
+    }
+    saveGame();
+    closeCropModal();
+    showToast(cropState.type === 'avatar' ? '✂️ 头像已更新' : '🖼️ 背景已更新');
+}
+
+// 拖动 / 缩放事件
+function bindCropEvents() {
+    const stage = document.getElementById('crop-stage');
+    if (!stage) return;
+    let pointers = [];
+    function getPoint(e) {
+        if (e.touches && e.touches.length) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        return { x: e.clientX, y: e.clientY };
+    }
+    function distance(p1, p2) {
+        return Math.hypot(p1.x - p2.x, p1.y - p2.y);
+    }
+    stage.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        cropState.dragging = true;
+        cropState.startX = e.clientX;
+        cropState.startY = e.clientY;
+        cropState.startOffsetX = cropState.offsetX;
+        cropState.startOffsetY = cropState.offsetY;
+        document.getElementById('crop-image-wrap').classList.add('dragging');
+    });
+    stage.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (e.touches.length === 1) {
+            cropState.dragging = true;
+            cropState.startX = e.touches[0].clientX;
+            cropState.startY = e.touches[0].clientY;
+            cropState.startOffsetX = cropState.offsetX;
+            cropState.startOffsetY = cropState.offsetY;
+            document.getElementById('crop-image-wrap').classList.add('dragging');
+        } else if (e.touches.length === 2) {
+            cropState.lastPinchDist = distance(e.touches[0], e.touches[1]);
+        }
+    }, { passive: false });
+    document.addEventListener('mousemove', (e) => {
+        if (!cropState.dragging) return;
+        e.preventDefault();
+        cropState.offsetX = cropState.startOffsetX + (e.clientX - cropState.startX);
+        cropState.offsetY = cropState.startOffsetY + (e.clientY - cropState.startY);
+        applyTransform();
+    });
+    document.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1 && cropState.dragging) {
+            e.preventDefault();
+            cropState.offsetX = cropState.startOffsetX + (e.touches[0].clientX - cropState.startX);
+            cropState.offsetY = cropState.startOffsetY + (e.touches[0].clientY - cropState.startY);
+            applyTransform();
+        } else if (e.touches.length === 2) {
+            e.preventDefault();
+            const d = distance(e.touches[0], e.touches[1]);
+            if (cropState.lastPinchDist > 0) {
+                const factor = d / cropState.lastPinchDist;
+                cropState.scale = Math.max(cropState.minScale, Math.min(cropState.maxScale, cropState.scale * factor));
+                updateCropLayout();
+            }
+            cropState.lastPinchDist = d;
+        }
+    }, { passive: false });
+    document.addEventListener('mouseup', () => {
+        cropState.dragging = false;
+        document.getElementById('crop-image-wrap').classList.remove('dragging');
+    });
+    document.addEventListener('touchend', () => {
+        cropState.dragging = false;
+        cropState.lastPinchDist = 0;
+        document.getElementById('crop-image-wrap').classList.remove('dragging');
+    });
+    // 滚轮缩放（PC）
+    stage.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        cropZoom(e.deltaY < 0 ? 1.1 : 0.9);
+    }, { passive: false });
+}
+bindCropEvents();
+
+function editId() {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'profile-id-input';
+    input.value = gameState.myId;
+    const idSpan = document.getElementById('profile-id');
+    idSpan.style.display = 'none';
+    idSpan.parentNode.insertBefore(input, idSpan.nextSibling);
+    input.focus();
+    input.onblur = () => {
+        if (input.value.trim()) gameState.myId = input.value.trim();
+        idSpan.textContent = gameState.myId;
+        idSpan.style.display = '';
+        input.remove();
+        saveGame();
+    };
+    input.onkeypress = (e) => { if (e.key === 'Enter') input.blur(); };
+}
+
+function editBio() {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'profile-bio-input';
+    input.value = gameState.myBio;
+    const bioDiv = document.getElementById('profile-bio');
+    bioDiv.style.display = 'none';
+    bioDiv.parentNode.insertBefore(input, bioDiv.nextSibling);
+    input.focus();
+    input.onblur = () => {
+        if (input.value.trim()) gameState.myBio = input.value.trim();
+        bioDiv.textContent = gameState.myBio;
+        bioDiv.style.display = '';
+        input.remove();
+        saveGame();
+    };
+    input.onkeypress = (e) => { if (e.key === 'Enter') input.blur(); };
+}
+
+function editProfile() {
+    editId();
+    setTimeout(editBio, 200);
+}
+
+function renderProfile() {
+    document.getElementById('profile-id').textContent = gameState.myId;
+    document.getElementById('profile-bio').textContent = gameState.myBio;
+    const gtag = document.getElementById('profile-gender-tag');
+    if (gtag) gtag.innerHTML = (gameState.myGender === 'male' ? '👨 男主播 · 点我切换' : '👩 女主播 · 点我切换');
+    const btag = document.getElementById('profile-bodytype-tag');
+    if (btag) {
+        const b = getMyBodyType();
+        btag.innerHTML = `${b.icon} ${b.label} · 点我改身材`;
+    }
+    if (gameState.myAvatar) {
+        document.getElementById('profile-avatar').innerHTML = `<img src="${gameState.myAvatar}" alt="avatar">`;
+    }
+    if (gameState.myBg) {
+        document.getElementById('profile-bg').style.backgroundImage = `url(${gameState.myBg})`;
+    }
+    document.getElementById('stat-fans').textContent = formatNumber(gameState.myFans);
+    document.getElementById('stat-follow').textContent = gameState.myFollow;
+    document.getElementById('stat-likes').textContent = formatNumber(gameState.myLikes);
+    document.getElementById('stat-income').textContent = formatNumber(gameState.myIncome);
+    renderIncomeList();
+    renderMessageBoard();
+}
+
+function renderIncomeList() {
+    const list = document.getElementById('income-list');
+    if (gameState.incomeHistory.length === 0) {
+        list.innerHTML = '<div class="empty-hint">还没有收益记录，开始直播赚钱吧~</div>';
+        return;
+    }
+    list.innerHTML = gameState.incomeHistory.slice(-20).reverse().map(item => 
+        `<div class="income-item">
+            <div class="income-date">${item.date}</div>
+            <div class="income-detail">${item.detail}</div>
+            <div class="income-amount">+${item.amount}</div>
+        </div>`
+    ).join('');
+}
+
+function renderMessageBoard() {
+    const board = document.getElementById('message-board');
+    if (gameState.messageBoard.length === 0) {
+        board.innerHTML = '<div class="empty-hint">还没有留言，直播后粉丝会来打卡~</div>';
+        return;
+    }
+    let html = '';
+    let lastDate = '';
+    gameState.messageBoard.slice().reverse().forEach(msg => {
+        if (msg.date !== lastDate) {
+            html += `<div class="message-date-divider">📅 ${msg.date}</div>`;
+            lastDate = msg.date;
+        }
+        const avatarHtml = msg.avatar ? `<img src="${msg.avatar}">` : msg.emoji;
+        html += `<div class="message-item">
+            <div class="message-avatar">${avatarHtml}</div>
+            <div class="message-body">
+                <div class="message-name">${msg.name}</div>
+                <div class="message-text">${msg.text}</div>
+                <div class="message-time">${msg.time}</div>
+            </div>
+        </div>`;
+    });
+    board.innerHTML = html;
+}
+
+// ====== 留言生成 ======
+function generateDailyMessages() {
+    const today = new Date().toDateString();
+    if (gameState.lastMessageDate === today) return;
+    
+    const messageNames = [
+        '老司机阿伟', '寂寞小狼', '深夜访客', '榜一大哥', 'LSP达人',
+        '纯情小处男', '富婆小美', '变态帅', '骚气少年', '寂寞大叔',
+        '隔壁老王', '粉丝小王', '应援团长', '妈粉', '事业粉',
+        '小奶狗', '霸道总裁', '大屌萌妹', '抠脚大汉', '纯情小妹'
+    ];
+    
+    const messageTexts = [
+        '主播好骚啊 爱了爱了', '想睡你 多少钱一晚', '主播可以约吗',
+        '看直播硬了一晚上了', '求私聊 我出高价',
+        '主播太骚了 喷鼻血', '想和你嘿嘿嘿', '主播用啥牌子的飞机杯',
+        '想操主播', '主播多少钱能包夜',
+        '骚货 给我操', '主播太骚了 把持不住',
+        '硬了硬了', '想舔你下面', '主播好会勾人',
+        '求主播福利', '主播可以援交吗', '约炮吗主播',
+        '想和你上床', '想日主播', '好想干你',
+        '想看主播裸照', '主播能视频吗', '想和你3P',
+        '主播是卖的？', '包夜多少？', '想射主播身上',
+        '想把你操哭', '主播骚得我硬了', '主播能上门吗',
+        '你是小母狗吗', '跪舔主播', '想闻主播下面',
+        '给我口', '主播腿开开', '把腿张开',
+        '主播求爆照', '想看骚样子', '主播湿了吗',
+        '多少钱一炮？', '一晚多少钱？', '能包养吗',
+        '主播好淫荡', '想被你榨干', '操哭主播'
+    ];
+    
+    const avatars = ['😈', '🔥', '💦', '🍆', '💋', '👅', '🔞', '💯', '😏', '🥵', '👹', '🤤', '👀', '💕', '🌙', '⭐', '💎', '👑'];
+    
+    // 每天生成10条
+    for (let i = 0; i < 10; i++) {
+        const name = messageNames[Math.floor(Math.random() * messageNames.length)] + Math.floor(Math.random() * 9999);
+        const text = messageTexts[Math.floor(Math.random() * messageTexts.length)];
+        const avatar = avatars[Math.floor(Math.random() * avatars.length)];
+        const hour = Math.floor(Math.random() * 24);
+        const minute = Math.floor(Math.random() * 60);
+        const time = `${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
+        
+        gameState.messageBoard.push({
+            name, text, avatar, time,
+            date: new Date().toLocaleDateString('zh-CN'),
+            timestamp: Date.now() - i * 60000
+        });
+    }
+    
+    gameState.lastMessageDate = today;
+    saveGame();
+}
+
+// ====== 直播设置 ======
+function openSetup() {
+    document.getElementById('setup-screen').classList.add('active');
+    refreshGenderSelection();
+    renderBodyTypeGrid();
+}
+function closeSetup() { document.getElementById('setup-screen').classList.remove('active'); }
+function selectGender(gender) {
+    gameState.myGender = gender;
+    refreshGenderSelection();
+    saveGame(true);
+    showToast(gender === 'male' ? '👨 已切换为男主播，观众池已更新' : '👩 已切换为女主播，观众池已更新');
+}
+function toggleGender() {
+    if (gameState.isLive) {
+        showToast('⚠️ 直播中不能切换性别');
+        return;
+    }
+    selectGender(gameState.myGender === 'male' ? 'female' : 'male');
+    renderProfile();
+}
+function refreshGenderSelection() {
+    const f = document.getElementById('gender-female');
+    const m = document.getElementById('gender-male');
+    if (!f || !m) return;
+    f.classList.toggle('selected', gameState.myGender === 'female');
+    m.classList.toggle('selected', gameState.myGender === 'male');
+    renderBodyTypeGrid();
+}
+function renderBodyTypeGrid() {
+    const grid = document.getElementById('bodytype-grid');
+    if (!grid) return;
+    const list = bodyTypeDatabase[gameState.myGender] || bodyTypeDatabase.female;
+    grid.innerHTML = list.map(b => `
+        <div class="bodytype-item ${b.id === gameState.myBodyType ? 'selected' : ''}" onclick="selectBodyType('${b.id}')">
+            <div class="bodytype-icon">${b.icon}</div>
+            <div class="bodytype-label">${b.label}</div>
+            <div class="bodytype-sub">${b.sub}</div>
+        </div>
+    `).join('');
+}
+function selectBodyType(id) {
+    gameState.myBodyType = id;
+    refreshBodyTypeSelection();
+    renderProfile();
+    saveGame(true);
+    const b = getMyBodyType();
+    showToast(`📐 已切换为${b.label}身材（${b.sub}）`);
+}
+function refreshBodyTypeSelection() {
+    renderBodyTypeGrid();
+}
+function selectCategory(element, category) {
+    document.querySelectorAll('.category-item').forEach(item => item.classList.remove('selected'));
+    element.classList.add('selected');
+    gameState.liveCategory = category;
+}
+
+// ====== 摄像头 ======
+async function startCamera() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+        gameState.stream = stream;
+        document.getElementById('camera-video').srcObject = stream;
+        document.getElementById('camera-placeholder').style.display = 'none';
+        gameState.cameraActive = true;
+    } catch (err) {
+        alert('无法访问摄像头：' + err.message);
+    }
+}
+function toggleCamera() {
+    if (gameState.cameraActive) {
+        if (gameState.stream) gameState.stream.getTracks().forEach(t => t.stop());
+        document.getElementById('camera-placeholder').style.display = 'flex';
+        gameState.cameraActive = false;
+    } else {
+        startCamera();
+    }
+}
+
+// ====== 开始/结束直播 ======
+function startLive() {
+    const title = document.getElementById('live-title-input').value.trim();
+    if (!title) { alert('请输入直播标题'); return; }
+    
+    gameState.isLive = true;
+    gameState.liveTitle = title;
+    gameState.viewerCount = Math.floor(Math.random() * 40000) + 30000;
+    gameState.likeCount = 0;
+    gameState.giftIncome = 0;
+    gameState.newFans = 0;
+    
+    const avatarHtml = gameState.myAvatar ? `<img src="${gameState.myAvatar}">` : '😈';
+    document.getElementById('host-avatar-bar').innerHTML = avatarHtml;
+    document.getElementById('live-id-display').textContent = gameState.myId;
+    document.getElementById('viewer-count').textContent = formatNumber(gameState.viewerCount);
+    document.getElementById('like-count').textContent = '0';
+    document.getElementById('danmu-container').innerHTML = '';
+    
+    document.getElementById('profile-screen').style.display = 'none';
+    document.getElementById('setup-screen').classList.remove('active');
+    document.getElementById('live-room').classList.add('active');
+    
+    initPresetGrid();
+    addDanmu('系统', `🔥 直播开始！${formatNumber(gameState.viewerCount)} 个LSP已进入`, true);
+    startDanmu();
+    simulateAudience();
+    gameState.unreadDanmu = 0;
+    const _dc = document.getElementById('danmu-container');
+    if (_dc && !_dc._scrollBound) {
+        _dc._scrollBound = true;
+        _dc.addEventListener('scroll', () => {
+            const dist = _dc.scrollHeight - _dc.scrollTop - _dc.clientHeight;
+            if (dist < 60 && (gameState.unreadDanmu || 0) > 0) {
+                gameState.unreadDanmu = 0;
+                updateUnreadBadge();
+            }
+        });
+    }
+    gameState.totalLives = (gameState.totalLives || 0) + 1;
+    saveGame(true);
+}
+
+function exitLive() {
+    // 退出直播但保存状态
+    gameState.isLive = false;
+    stopDanmu();
+    if (gameState.pkInterval) clearInterval(gameState.pkInterval);
+    if (gameState.stream) gameState.stream.getTracks().forEach(t => t.stop());
+    document.getElementById('live-room').classList.remove('active');
+    document.getElementById('profile-screen').style.display = 'block';
+    renderProfile();
+    saveGame(true);
+    showToast('⬅ 已退出直播，数据已存档');
+}
+
+function endLive() {
+    gameState.isLive = false;
+    gameState.isPK = false;
+    gameState.myFans += gameState.newFans;
+    gameState.myIncome += gameState.giftIncome;
+    gameState.myLikes += Math.floor(gameState.viewerCount * 0.5);
+    stopDanmu();
+    if (gameState.pkInterval) clearInterval(gameState.pkInterval);
+    if (gameState.stream) gameState.stream.getTracks().forEach(t => t.stop());
+    
+    // 记录收益
+    if (gameState.giftIncome > 0) {
+        gameState.incomeHistory.push({
+            date: new Date().toLocaleString('zh-CN'),
+            detail: `${gameState.liveTitle} | ${gameState.viewerCount}观众 | +${gameState.newFans}粉`,
+            amount: gameState.giftIncome
+        });
+    }
+    
+    addDanmu('系统', `🔥 直播结束！${formatNumber(gameState.viewerCount)} LSP 还没撸够`, true);
+    setTimeout(() => {
+        document.getElementById('live-room').classList.remove('active');
+        document.getElementById('profile-screen').style.display = 'block';
+        saveGame(true);
+        renderProfile();
+        showToast('🔴 直播结束，收益已结算入账');
+    }, 2000);
+}
+
+// ====== 弹幕系统 ======
+const hostTriggerMap = {
+    '胸': { reactions: ['好大好想摸', '让我埋', '受不了', '想捏', '喷鼻血', '太大了', '硬了'], type: 'h', gift: true },
+    '奶': { reactions: ['想喝奶', '给我吃', '好白好大', '硬了', '喷鼻血'], type: 'h', gift: true },
+    '奶子': { reactions: ['想揉', '好大', '受不了', '太骚了', '喷鼻血'], type: 'h', gift: true },
+    '腿': { reactions: ['腿好白', '想摸', '夹我', '腿玩年', '舔屏', '想日腿'], type: 'h' },
+    '腰': { reactions: ['腰好细', '想搂', '水蛇腰', '好软', '扭给我看'], type: 'h' },
+    '屁股': { reactions: ['好翘', '想拍', '坐我脸上', '好弹', '想操'], type: 'h', gift: true },
+    '臀': { reactions: ['好翘', '想操', '太骚了', '喷鼻血', '想拍'], type: 'h', gift: true },
+    '身材': { reactions: ['太火辣', '前凸后翘', '想抱', '完美身材', '硬了'], type: 'h' },
+    '扭': { reactions: ['再扭快点', '骚死了', '太骚了', '腰都扭断了', '受不了', '想操'], type: 'h', gift: true },
+    '脱': { reactions: ['快脱', '全脱', '别穿了', '要看', '打赏了快脱'], type: 'h', gift: true },
+    '摸': { reactions: ['让我摸', '自己摸', '摸哪里', '想摸', '好骚'], type: 'h' },
+    '舔': { reactions: ['舔我', '舌头好灵活', '想被舔', '好色', '受不了'], type: 'h' },
+    '叫': { reactions: ['叫大声', '再叫', '好骚', '硬了', '叫给我听'], type: 'h' },
+    '亲': { reactions: ['亲我', '亲哪里', '飞吻', '么么', '想亲'], type: 'h' },
+    '想要': { reactions: ['给你', '想要什么', '我硬了', '满足你', '求打赏'], type: 'h', gift: true },
+    '寂寞': { reactions: ['我来陪你', '晚上来', '我也寂寞', '约约约', '私聊'], type: 'dirty' },
+    '睡不着': { reactions: ['我哄你睡', '一起睡', '想你', '视频吗', '裸聊'], type: 'h' },
+    '好想': { reactions: ['想什么', '想我么', '我也想', '来啊', '别忍着'], type: 'dirty' },
+    '痒': { reactions: ['哪里痒', '我帮你', '下面痒吗', '骚货', '想被操'], type: 'h' },
+    '湿': { reactions: ['哪里湿', '好骚', '出水了', '想舔', '硬了'], type: 'h', gift: true },
+    '礼物': { reactions: ['刷了', '老板大气', '求打赏', '想看福利', '礼物雨'], type: 'gift', gift: true },
+    '刷': { reactions: ['刷起来', '老板666', '想看', '继续刷', '礼物雨'], type: 'gift', gift: true },
+    '操': { reactions: ['操我', '想被操', '用力操', '操哭我', '操烂'], type: 'h', gift: true },
+    '日': { reactions: ['日我', '想被日', '用力日', '日死我', '日哭'], type: 'h', gift: true },
+    '干': { reactions: ['干我', '想被干', '用力干', '干死我', '干哭'], type: 'h', gift: true },
+    '射': { reactions: ['射我', '想被射', '射里面', '射脸上', '射嘴里'], type: 'h' },
+    '屌': { reactions: ['大屌', '想被插', '插我', '大鸡巴', '想被干'], type: 'h' },
+    '鸡巴': { reactions: ['想被插', '插我', '好大', '受不了', '要'], type: 'h' },
+    '逼': { reactions: ['好骚', '想操', '小穴', '好嫩', '想舔'], type: 'h' },
+    '骚': { reactions: ['骚货', '太骚了', '想操', '受不了', '小骚货'], type: 'h' },
+    '裸': { reactions: ['全裸', '脱光', '要看裸的', '想看身体', '裸聊'], type: 'h', gift: true },
+    '炮': { reactions: ['想打炮', '约炮', '和你打炮', '想操你', '一晚几次'], type: 'h', gift: true },
+    '约': { reactions: ['约', '我想约', '可以约', '什么时候', '多少钱'], type: 'h' },
+    '钱': { reactions: ['我出高价', '包你', '多少钱', '愿意', '很贵吗'], type: 'h' },
+    '贵': { reactions: ['不贵', '我出', '愿意出', '包养你', '什么价格'], type: 'h' },
+    '包': { reactions: ['包养', '包夜', '包月', '多少钱', '我包你'], type: 'h' },
+    '视频': { reactions: ['视频裸聊', '我想视频', '可以视频吗', '想看你', '约视频'], type: 'h' },
+    '黑丝': { reactions: ['穿黑丝了', '撕了', '好性感', '腿玩年', '把持不住', '想操'], type: 'h', gift: true },
+    '白丝': { reactions: ['好纯好欲', '想摸', '腿好美', '硬了', '想操'], type: 'h' },
+    '内衣': { reactions: ['什么色', '想看', '脱下来', '蕾丝吗', '性感'], type: 'h', gift: true },
+    '吃了': { reactions: ['吃的什么', '想吃你', '好吃吗', '喂我', '我也饿了'], type: 'normal' },
+    '大哥': { reactions: ['大哥好', '谢谢大哥', '大哥大气', '求大哥打赏', '大哥想看什么'], type: 'normal' },
+    '爱你们': { reactions: ['爱你', '我们也爱你', '么么哒', '比心', '最爱你'], type: 'normal' }
+};
+
+// ====== v8.5 身材/类型系统 ======
+// 每种身材影响道具文字描述（替换关键词）+ 弹幕风格
+const bodyTypeDatabase = {
+    female: [
+        {
+            id: 'flat', icon: '🪶', label: '平乳', sub: '娇小清纯',
+            desc: {
+                breast: '小巧的乳尖', breastLong: '小巧白嫩的乳房', nipple: '两粒淡粉色的小乳尖',
+                chest: '清纯的锁骨', body: '娇小纤细的身子', butt: '小巧紧致的臀部', waist: '纤细的小蛮腰'
+            }
+        },
+        {
+            id: 'big', icon: '🍈', label: '巨乳', sub: '波涛汹涌',
+            desc: {
+                breast: '丰满的巨乳', breastLong: '两只又大又软、沉甸甸的乳房', nipple: '两粒深红色的乳晕',
+                chest: '深邃的乳沟', body: '丰满肉感的身子', butt: '圆润挺翘的大屁股', waist: '丰腴的小蛮腰'
+            }
+        },
+        {
+            id: 'slim', icon: '🦋', label: '少女', sub: '青涩苗条',
+            desc: {
+                breast: '青涩的小乳', breastLong: '青涩紧致的乳房', nipple: '两粒淡粉的小乳尖',
+                chest: '纤瘦的锁骨', body: '青涩苗条的身子', butt: '紧致的小翘臀', waist: '细细的腰身'
+            }
+        },
+        {
+            id: 'mature', icon: '🍷', label: '熟女', sub: '风韵迷人',
+            desc: {
+                breast: '饱满的熟女乳', breastLong: '饱满风韵的乳房', nipple: '两粒艳红的乳尖',
+                chest: '迷人的锁骨', body: '丰腴成熟的身子', butt: '圆润饱满的臀部', waist: '柔软丰腴的腰'
+            }
+        },
+        {
+            id: 'loli', icon: '🎀', label: '娇小', sub: '萝莉体型',
+            desc: {
+                breast: '微微凸起的小乳尖', breastLong: '还没发育完全的小乳房', nipple: '两粒浅粉色的小乳尖',
+                chest: '细瘦的锁骨', body: '娇小可爱的身子', butt: '小巧的臀部', waist: '细得让人心疼的小腰'
+            }
+        },
+        {
+            id: 'tall', icon: '🦒', label: '高挑', sub: '模特身材',
+            desc: {
+                breast: '挺拔的乳房', breastLong: '挺拔圆润的乳房', nipple: '两粒粉嫩的乳尖',
+                chest: '笔直修长的颈部', body: '高挑修长的身子', butt: '挺翘的臀部', waist: '紧实纤细的腰'
+            }
+        }
+    ],
+    male: [
+        {
+            id: 'puppy', icon: '🐶', label: '小奶狗', sub: '软萌听话',
+            desc: {
+                cock: '软萌的小肉棒', cockLong: '粉嫩的小肉棒', body: '软萌的小奶狗身材', chest: '白嫩的胸膛',
+                abs: '软乎乎的小肚子', hair: '乱蓬蓬的软发', face: '奶凶奶凶的小脸'
+            }
+        },
+        {
+            id: 'shota', icon: '🍒', label: '小正太', sub: '青涩稚嫩',
+            desc: {
+                cock: '稚嫩的小肉棒', cockLong: '稚嫩未发育完全的小肉棒', body: '青涩单薄的身子', chest: '青涩单薄的胸膛',
+                abs: '平平的小肚子', hair: '软软的刘海', face: '稚嫩的小脸'
+            }
+        },
+        {
+            id: 'muscle', icon: '💪', label: '肌肉男', sub: '荷尔蒙炸裂',
+            desc: {
+                cock: '粗壮紫红的大肉棒', cockLong: '粗壮狰狞的大肉棒', body: '肌肉贲张的荷尔蒙身材', chest: '厚实结实的胸膛',
+                abs: '棱角分明的八块腹肌', hair: '短寸利落的发型', face: '刚毅帅气的脸'
+            }
+        },
+        {
+            id: 'scholar', icon: '📚', label: '书生', sub: '清瘦文气',
+            desc: {
+                cock: '细长白净的肉棒', cockLong: '细长秀气的肉棒', body: '清瘦文气的书生身材', chest: '单薄白皙的胸膛',
+                abs: '单薄平直的小腹', hair: '柔软的长刘海', face: '斯文秀气的小脸'
+            }
+        },
+        {
+            id: 'uncle', icon: '🧔', label: '大叔', sub: '成熟韵味',
+            desc: {
+                cock: '粗壮成熟的大肉棒', cockLong: '粗壮毛发浓密的大肉棒', body: '成熟健硕的大叔身材', chest: '厚实有肉感的胸膛',
+                abs: '微胖的啤酒肚', hair: '成熟稳重的短发', face: '成熟有韵味的脸'
+            }
+        },
+        {
+            id: 'sport', icon: '⚽', label: '黑皮体育生', sub: '阳光帅气',
+            desc: {
+                cock: '被晒成小麦色的大肉棒', cockLong: '被晒成古铜色的大肉棒', body: '阳光健康的小麦肤色', chest: '结实饱满的胸膛',
+                abs: '分明的巧克力腹肌', hair: '运动感的短发', face: '阳光灿烂的笑脸'
+            }
+        }
+    ]
+};
+
+// 默认身材
+if (!gameState.myBodyType) gameState.myBodyType = gameState.myGender === 'male' ? 'puppy' : 'flat';
+
+function getMyBodyType() {
+    const list = bodyTypeDatabase[gameState.myGender] || bodyTypeDatabase.female;
+    return list.find(b => b.id === gameState.myBodyType) || list[0];
+}
+
+const dirtyDanmuPool = [
+    '主播好骚', '想睡你', '多少钱一晚', '有福利吗', '脱不脱', '操你', '日你',
+    '胸好大', '好性感', '硬了', '受不了', '想摸', '想操',
+    '声音好骚', '喘一下', '叫给我听', '舔屏', '喷鼻血', '骚货',
+    '这谁顶得住', '太骚了', '把持不住', '今晚约吗', '私聊', '想和你打炮',
+    '想看', '给福利', '刷礼物看吗', '小骚货', '小妖精',
+    '想操', '水真多', '下面湿了', '硬邦邦', '想射',
+    '身材真好', '前凸后翘', '腰细胸大', '极品', '尤物',
+    '老婆', '想抱你', '想亲你', '想上你', '想要你',
+    '好美', '美死了', '性感尤物', '梦中情人', '女神',
+    '再骚一点', '扭起来', '跳个舞', '脱一件', '给看点',
+    '刷了多少钱能看', '老板大气', '求福利', '定制吗', '联系方式',
+    '小穴', '大屌', '想被插', '操我', '用力',
+    '想日', '约炮', '多少钱', '包夜多少', '裸聊吗'
+];
+
+// 男版弹幕池：男主播的男性观众+部分女性观众 + 骚话往"开发"方向
+const maleDirtyDanmuPool = [
+    '小哥哥好帅', '硬了', '想干你', '多少钱一晚', '约吗', '想舔你',
+    '屁股好翘', '受不了', '想摸你', '骚货', '老公',
+    '叫给我听', '喘一下', '舔屏', '喷鼻血', '这谁顶得住',
+    '太骚了', '把持不住', '今晚约吗', '想和你打炮', '小骚货', '小妖精',
+    '想操', '大屌准备好了', '下面硬了', '后庭准备好了', '想射',
+    '身材真好', '公狗腰', '肌肉男', '极品', '尤物',
+    '老公', '想抱你', '想亲你', '想上你', '想要你',
+    '好帅', '帅死了', '梦中情人', '男神', '老公',
+    '掰开让我看看', '后面也想看', '开发一下', '菊花痒了',
+    '想日', '约炮', '多少钱', '包夜多少', '走旱道吗',
+    '被操', '被干', '后入', '跪下', '趴好',
+    '菊花', '屁眼', '小穴', '开苞', '破处',
+    '大鸡巴', '操我', '干我', '用力', '插我'
+];
+
+// ====== v8 道具表演系统 ======
+// 用法棍/香蕉/荧光剂等物品代替男性器官，配合其他道具摆动作
+const propShowDatabase = [
+    {
+        id: 'baguette',
+        name: '法棍秀',
+        icon: '🥖',
+        category: '基础',
+        actionText: `🥖 **法棍秀·插弄逼穴** —— 主播从桌面下抽出一根又粗又长的法棍，故意对着镜头撸了两下让粉丝看清它的尺寸。法棍又硬又直，在灯光下泛着金黄色的光泽，主播用纤细白嫩的手指握着它，故意在镜头前慢慢上下撸动，发出"啧~啧~"的水声，仿佛在给真屌打飞机。\n\n她把法棍举到嘴边，舌尖沿着法棍从头舔到尾，整根法棍被她的唾液舔得湿漉漉亮晶晶。她眯着眼"嗯~"地轻喘，仿佛嘴里含着的不是面包而是一根滚烫的大鸡巴。然后她用法棍抵在自己的乳沟中间来回抽插，两团柔软的白肉被法棍挤得变形，乳沟里被磨得泛红发热，乳尖因为摩擦硬成了两粒小豆。\n\n接着她跨开腿，把法棍竖直抵在裆部——白色棉内裤已经被淫水洇湿了一小块。她用法棍隔着内裤在自己的逼穴上来回磨，龟头形状的法棍头一下一下戳在阴蒂上，她"啊~嗯~"地叫出声，腰部剧烈扭动，整个人快要被自己玩到高潮。镜头特写她的脸——眉头紧皱、舌尖舔着嘴唇、眼角泛红，嘴里断断续续叫着"操我~干我~好爽~"。\n\n她把法棍塞进内裤里直接顶着逼穴，模拟被大鸡巴干穴的节奏疯狂抽动，每一下都"啪~啪~啪~"打在自己的阴唇上，整个身体因为快感和羞耻而不停颤抖，"要~要去了~操死我~"地浪叫着高潮，淫水顺着法棍流下来，地板上湿了一片。\n\n弹幕瞬间爆了："啊啊啊我死了""这谁顶得住""硬了硬了""想操她""大屌想插她逼""骚货""受不了"刷到飞起，礼物雨直接糊屏。`,
+        danmuReactions: ['啊啊啊我死了', '这谁顶得住', '硬了', '受不了', '姐姐这谁顶得住', '我硬邦邦', '喷鼻血'],
+        giftTrigger: true,
+        unlockFans: 0
+    },
+    {
+        id: 'banana',
+        name: '香蕉秀',
+        icon: '🍌',
+        category: '基础',
+        actionText: `🍌 **香蕉剥皮·深喉与插穴** —— 主播从水果盘里挑出一根又粗又长的香蕉，故意在镜头前慢慢剥皮，露出里面白嫩嫩、形状暧昧的果肉。她用两根手指捏着香蕉，对准镜头展示了一下它的粗细长度，嘴角一抹淫笑。\n\n她把整根香蕉含进嘴里开始吞吐——嘴巴只留一截在外面，舌头在果肉上来回舔，发出"唔~唔~"的声音，喉部因为香蕉的深入而"呃~"地干呕，眼泪都呛出来。她用双手扶着香蕉的根部模拟被大鸡巴深喉的节奏，喉结一上一下地滚动，眼神迷离地看着镜头，整个画面仿佛在给一根真屌口交。\n\n她把香蕉吐出来又掰成两段——一段夹在深深的乳沟里来回抽插，乳肉被磨得通红，乳尖硬挺；另一段塞进嘴里继续吃。两只手不闲着，一边用指头拨弄胸前夹着的香蕉让它上下抽动，一边用嘴模拟被鸡巴肏嘴的样子。她眯着眼"嗯~嗯~"地浪叫，仿佛嘴里含着的不是水果而是一根滚烫的大屌。\n\n然后她把剩下的半根香蕉直接塞进自己的逼穴里——逼穴早就湿透了，香蕉被淫水浸得"噗嗤"一声就滑了进去。她"啊~好爽~大鸡巴~操我~"地浪叫，腰部剧烈扭动，整个人上下起伏着用香蕉干自己的穴。每一下都"噗嗤~噗嗤~"地发出水声，淫水顺着大腿流到地板上，混着香蕉的汁液把整片地毯打湿。\n\n她一边用香蕉自慰一边用手指揉自己的阴蒂，"要~要去了~操死我~大鸡巴~"地浪叫着高潮，嘴巴大张，舌头伸出来，眼睛翻白。\n\n弹幕疯了一样刷："硬了硬了""这谁顶得住""受不了""想日她""骚货""操死她""大屌想插""喷了"刷到飞起，礼物提示音响个不停。`,
+        danmuReactions: ['这谁顶得住', '受不了', '想日', '骚货', '喷鼻血', '硬了', '约吗'],
+        giftTrigger: true,
+        unlockFans: 0
+    },
+    {
+        id: 'glow',
+        name: '荧光剂秀',
+        icon: '✨',
+        category: '进阶',
+        actionText: `✨ **荧光剂·淫纹涂身** —— 主播啪地关掉直播间所有灯光，整个画面陷入一片漆黑，只有手机屏幕的微光勾勒出她的轮廓。她"嘿嘿"地淫笑两声，掏出荧光剂和一根法棍，在黑暗里开始往自己身上挤。\n\n在紫外线的照射下，荧光剂发出幽蓝色的诡异光芒。主播用手指蘸着荧光剂，慢慢在自己锁骨上画了两个大字——"操我"。黏稠的液体在紫外线下亮得刺眼，字体歪歪扭扭却充满情欲。她又把荧光剂涂满整根法棍，整根法棍在黑暗里像一根发光的大鸡巴，龟头处的荧光剂特别浓，仿佛在模拟溢出前列腺液的马眼。\n\n然后她用法棍的荧光头在自己乳尖上来回画圈——乳尖被荧光剂涂得整颗发亮，两粒硬挺的乳头像两只发光的眼睛。她一边涂一边"嗯~嗯~"地浪叫，声音在黑暗里格外清晰。荧光剂的黏腻感加上法棍的硬度让她浑身颤抖，腰部不自觉地扭动，嘴巴发出"啊~好爽~大鸡巴~"的淫叫。\n\n接着她跨开腿坐在椅子上，把涂满荧光剂的法棍塞进自己已经湿透的逼穴里。幽蓝色的法棍在黑暗里一进一出，每一次抽插都把荧光液体和淫水一起搅出来，"噗嗤~噗嗤~"的水声和她的"操我~干我~好爽~"的浪叫交织在一起。她用法棍疯狂地干自己的穴，荧光液体溅得到处都是——大腿上、椅子上、地板上都是幽蓝色的光斑，整个画面色情到极致。\n\n她一边被法棍干一边用手指涂荧光剂在自己肚皮上画一颗爱心，一边画一边"啊~要去了~操死我~大鸡巴干我~"地浪叫高潮，整个人在黑暗里被荧光涂成一个发光的淫荡符号。\n\n弹幕直接爆炸了："啊啊啊啊""我死了""想操她""大屌想日""太骚了""受不了""骚货""约炮吗""想舔逼"刷到飞起，礼物雨直接糊屏，城堡、火箭、告白气球满天飞。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '想操', '太骚了', '老婆这谁顶得住', '顶不住了', '约炮吗'],
+        giftTrigger: true,
+        unlockFans: 500000
+    },
+    {
+        id: 'cucumber',
+        name: '黄瓜切片',
+        icon: '🥒',
+        category: '基础',
+        actionText: `🥒 **黄瓜切片·插穴大秀** —— 主播从厨房端来一根翠绿粗大的黄瓜，故意在镜头前举到脸旁边对比了一下——黄瓜的粗细和长度让粉丝们立刻浮想联翩，嘴角都流下了淫水。\n\n她先用菜刀把黄瓜切成薄薄的圆片，每切一刀都发出清脆的"咔嚓"声，听得粉丝们血脉喷张。切好的黄瓜片晶莹剔透泛着水光，她故意把一片贴在自己乳尖上慢慢碾磨，黄瓜汁渗出来打湿了衣服，乳尖在汁液里若隐若现。她"嗯~"地轻喘，把另一片黄瓜贴在自己大腿内侧磨，皮肤被黄瓜的凉意激得起了一层鸡皮疙瘩。\n\n她把剩下的半根黄瓜塞进自己的黑色丝袜里——丝袜被黄瓜撑得鼓出一个明显的形状，龟头那一截把丝袜顶得高高的。她跨开腿，把这根"丝袜大鸡巴"对准自己湿透的逼穴，慢慢坐下去。"噗嗤"一声，半根黄瓜直接滑进了逼穴里，她"啊~好大~好爽~大鸡巴干我~"地浪叫出声，腰部剧烈扭动。\n\n丝袜的丝滑和黄瓜的硬度一起刺激她的穴肉，她疯狂地扭动腰部上下起伏，每一下都"噗嗤~噗嗤~"地发出水声，淫水混着黄瓜汁顺着丝袜流到椅子上。她的双乳因为剧烈的动作上下乱晃，乳尖硬挺着，嘴巴大张"操我~干死我~大鸡巴~"地浪叫，舌头都伸了出来。\n\n她又拿起一片黄瓜贴在自己阴蒂上轻轻磨——冰凉的触感和阴蒂的敏感让她整个人"啊~"地尖叫，腰部弓起，淫水喷涌而出。一边磨一边浪叫高潮，整个人被黄瓜和丝袜玩到喷水，"要~要去了~操死我~大鸡巴~"地大叫着，身体不停痉挛。\n\n弹幕刷满了"受不了""太骚了""硬了硬了""约炮""想操她""大屌想插""骚货""这谁顶得住""喷了"刷到飞起，礼物雨哗哗地下，城堡、火箭刷到停不下来。`,
+        danmuReactions: ['受不了', '太骚了', '硬了', '约炮', '想操', '这谁顶得住', '喷鼻血'],
+        giftTrigger: true,
+        unlockFans: 0
+    },
+    {
+        id: 'toy',
+        name: '按摩棒',
+        icon: '🔧',
+        category: '进阶',
+        actionText: `🔧 **按摩棒·操逼震动** —— 主播神秘地从抽屉里掏出一根紫色的粗大按摩棒，故意在镜头前展示它的尺寸和形状——按摩棒又粗又长，上面布满逼真的青筋纹路，涂着亮晶晶的润滑液，看起来就像一根大鸡巴的复制品。\n\n她故意把按摩棒凑近镜头特写，让粉丝看清上面每一根青筋和震动的按钮。然后她按下开关，按摩棒开始剧烈震动，发出"嗡~嗡~"的淫靡声音，整个屏幕仿佛都在颤抖。她把震动的按摩棒怼在自己大腿内侧缓缓滑过，皮肤立刻泛起一片红，每经过一处都能听到她"啊~嗯~"的淫叫声。\n\n她用按摩棒在自己身体的各个敏感部位游走——锁骨、乳尖、肚脐、腹部、最后停在大腿根部。震动的按摩棒每经过一处都能看到她身体不自觉地颤抖，嘴巴大张"操我~干我~大鸡巴~"地浪叫，眼神逐渐变得迷离。她用按摩棒的头在自己阴蒂上画圈，整个人"啊~啊~受不了~"地尖叫，腰部剧烈扭动，淫水从逼穴里涌出来打湿了整个内裤。\n\n接着她把按摩棒夹在两腿之间扭动，让它在最敏感的部位剧烈震动，整个人明显被刺激到快崩溃——身体不停颤抖，腰部扭得像水蛇，嘴巴发出断断续续的浪叫"操~操死我~干我~大鸡巴~"。她一手扶着按摩棒疯狂地干自己的穴，一手揉着自己的胸——又掐又挤，把乳肉揉得变形，乳尖被自己掐得又红又硬。\n\n她把按摩棒直接塞进自己的逼穴里——湿透的逼穴"噗嗤"一声把整根吞了进去。她疯狂地上下抽动按摩棒干自己，每一下都"噗嗤~噗嗤~"地发出水声，整个人一边"操我~干我~大鸡巴操死我~"地浪叫一边身体不停痉挛，最后"啊~啊~要去了~操死我~"地大叫着高潮，淫水喷了一地。\n\n弹幕直接爆了："啊啊啊啊""我死了""太骚了""受不了""喷了""想操她""想日她""骚货""大屌想插"疯狂刷屏，礼物大到根本看不清。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '太骚了', '受不了', '喷鼻血', '想操', '想日'],
+        giftTrigger: true,
+        unlockFans: 500000
+    },
+    {
+        id: 'ice',
+        name: '冰块挑战',
+        icon: '🧊',
+        category: '进阶',
+        actionText: `🧊 **冰块黑丝·冰火操穴** —— 主播端来一盘晶莹剔透的冰块，故意在镜头前拿起一块含进嘴里——冰块在她温热的嘴里慢慢融化，水滴顺着嘴角流下来，她眯着眼"嗯~好冰~好爽~"地轻喘，仿佛嘴里含着的不是冰块而是一根冰镇大鸡巴。\n\n她脱下黑丝袜，把冰块一颗一颗塞进丝袜里——冰块在丝袜里晶莹剔透，衬着白皙的腿部曲线，视觉效果极其色情。她把丝袜重新穿回腿上，冰块的凉意让她"嘶~好凉~"地倒吸凉气，声音里带着几分娇喘。她故意把丝袜在大腿间揉搓，让冰块摩擦自己的阴唇——冰凉和摩擦的双重刺激让她"啊~嗯~"地叫出声，身体不停颤抖。\n\n她又拿起一根法棍，沾上融化的冰水，让冰凉的液体顺着法棍流下来。冰凉液体和法棍硬度的双重刺激让她"啊~不要~嗯~好爽~大鸡巴~"地浪叫，舌头伸出来，眼睛翻白。她把沾满冰水的法棍塞进自己的逼穴里——"噗嗤"一声，整根法棍被湿透的逼穴吞了进去。\n\n冰水和法棍的结合简直要了她的命——冰凉的触感和硬度的刺激让她疯狂扭动腰部，整个人上下起伏着用法棍干自己的穴，每一下都"噗嗤~噗嗤~"地发出水声，淫水混着冰水流到椅子上。她"操我~干死我~大鸡巴~冰死我了~好爽~"地浪叫，声音都喊哑了，嘴巴大张，舌头乱伸，乳尖因为冰水的刺激硬成了两粒小豆。\n\n她一边被法棍干一边用手指揉自己的阴蒂，"要~要去了~操死我~大鸡巴~"地浪叫着高潮，整个人冰火两重天被玩到喷水，眼睛翻白，身体不停痉挛，淫水喷了一地。\n\n弹幕疯了一样刷："啊啊啊啊""这谁顶得住""硬了硬了""受不了""骚货""约炮""想操她""大屌想插""喷了"刷到飞起，礼物雨根本停不下来。`,
+        danmuReactions: ['啊啊啊啊', '这谁顶得住', '硬了', '受不了', '骚货', '约炮', '想操'],
+        giftTrigger: true,
+        unlockFans: 500000
+    },
+    {
+        id: 'honey',
+        name: '蜂蜜滴乳',
+        icon: '🍯',
+        category: '基础',
+        actionText: `🍯 **蜂蜜滴乳·黏腻操穴** —— 主播端来一罐金黄色的蜂蜜，故意在镜头前用勺子舀起一勺，让黏稠的蜂蜜缓缓流下——蜂蜜拉出长长的细丝在灯光下闪闪发光，黏腻的质感让人立刻联想到某种更淫靡的液体。\n\n她先把蜂蜜轻轻淋在自己锁骨上，金黄色的液体顺着皮肤的纹理慢慢往下流。她用手指把蜂蜜在胸口涂抹开，让它覆盖整个胸部的上半部分——乳肉被蜂蜜涂得亮晶晶黏糊糊。然后她俯身让蜂蜜从乳尖上一滴一滴落下，"嗒~嗒~"地滴在地板上。她用舌头慢慢舔掉乳尖上的蜂蜜，舌头在乳尖上来回扫动发出"啧啧"的水声，眼神迷离地"嗯~好甜~好骚~"地浪叫。\n\n她把蜂蜜涂满整根法棍——法棍在蜂蜜的包裹下变得亮晶晶黏糊糊，整根像一根抹了润滑液的大鸡巴。她把沾满蜂蜜的法棍抵在自己的乳沟中间来回抽插——蜂蜜在乳沟里被磨出白色的泡沫，乳肉被磨得通红发热。她"嗯~好爽~大鸡巴~"地浪叫，腰部扭得像水蛇，舌头伸出来。\n\n她把蜂蜜直接淋在自己已经湿透的逼穴上——黏稠的金黄色蜂蜜顺着阴唇慢慢流下来，混着淫水变得稀薄。她用手指把蜂蜜抹进穴里，"嗯~好黏~好骚~"地浪叫。她跨开腿把沾满蜂蜜的法棍塞进自己的逼穴里——"噗嗤"一声，蜂蜜和法棍一起被吞了进去。\n\n蜂蜜的黏腻和法棍的硬度一起刺激她的穴肉，她疯狂地扭动腰部上下起伏，每一下都"噗嗤~噗嗤~"地发出水声，蜂蜜混着淫水从穴里被挤出来，黏得连椅子都在拉丝。她"操我~干我~大鸡巴~好爽~好黏~"地浪叫，声音都喊哑了，一边干一边用手指揉自己的阴蒂，最后"啊~要去了~操死我~"地大叫着高潮，整个人被蜂蜜涂成一个亮晶晶的淫荡符号。\n\n弹幕直接炸裂："受不了""喷了""太骚了""想日她""硬了硬了""约吗""想操她""大屌想插""骚货"刷到飞起，礼物大到看不清。`,
+        danmuReactions: ['受不了', '喷鼻血', '太骚了', '想日', '硬了', '约吗', '想操'],
+        giftTrigger: true,
+        unlockFans: 0
+    },
+    {
+        id: 'rope',
+        name: '绳子捆绑',
+        icon: '🪢',
+        category: '高级',
+        actionText: `🪢 **绳子捆绑·被缚操穴** —— 主播掏出一卷红色的丝绳，故意在镜头前用牙齿咬住一端扯开，红色的绳子在灯光下泛着暧昧的光泽。她对着镜头舔了舔嘴唇，眼神里全是骚气。\n\n她解开自己睡衣的扣子，露出白皙的肌肤。然后用绳子在自己的胸部缠绕起来——从侧面绕到背后，再绕到前面，把整个胸部勒出完美的形状。绳子的红色和肌肤的白皙形成强烈对比，每缠一圈都能看到胸部因为束缚而变得更加丰满，乳肉从绳子的缝隙里挤出来。她一边缠一边"嗯~紧~好爽~"地轻喘，仿佛被绳子勒得很爽，故意用嘴叼住绳子的一端，眯着眼看向镜头。\n\n她又用绳子把自己的双手反绑在背后，绳子勒得手腕发红。她扭动着被绑的身体在镜头前挣扎，绳子越挣扎越紧，乳肉和臀部被勒得变形，整个画面色情到极致。她"嗯~啊~绑紧我~操我~"地浪叫，眼神迷离地看着镜头。\n\n然后她用绳子把一根法棍绑在桌子的边缘，让法棍竖直立起来。她被绑着双手，慢慢走近法棍，跨开腿跨坐在它上方，让法棍抵在自己已经湿透的逼穴上。她咬着牙慢慢坐下去——"噗嗤"一声，整根法棍被湿透的逼穴吞了进去，她"啊~好大~好深~大鸡巴操我~"地浪叫出声。\n\n她被绑着双手无法扶任何东西，只能用腰部发力上下起伏，用法棍疯狂地干自己的穴。每一下都"噗嗤~噗嗤~"地发出水声，绳子在挣扎中勒得更紧，乳肉和臀部被勒出红痕。她"操我~干死我~大鸡巴~好深~好爽~"地浪叫，眼睛翻白，舌头伸出来，整个人因为快感和羞耻而不停颤抖。最后"啊~要去了~操死我~大鸡巴~"地大叫着高潮，淫水喷了一地，整个人被绑着瘫软在法棍上不停痉挛。\n\n弹幕"啊啊啊啊""我死了""受不了""想操她""太骚了""喷了""硬邦邦""大屌想日""想插她逼"刷到飞起，礼物大到根本看不清。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '想操', '太骚了', '喷鼻血', '硬邦邦'],
+        giftTrigger: true,
+        unlockFans: 1000000
+    },
+    {
+        id: 'silicone',
+        name: '硅胶假阳具',
+        icon: '🍆',
+        category: '高级',
+        actionText: `🍆 **硅胶大屌·肏到喷水** —— 主播神秘地从抽屉里掏出一根巨型的硅胶假阳具，故意在镜头前展示它的尺寸——假阳具又粗又长足足有小臂那么长，表面布满逼真的血管纹路和青筋，龟头硕大得吓人，视觉效果极其震撼。\n\n她先让镜头特写假阳具的每一个细节，让粉丝看清它逼真的造型。然后她伸出舌尖，轻轻舔过假阳具的龟头——"嗯~"地发出一声满足的叹息，仿佛在品尝什么人间美味。她张开嘴慢慢把整根假阳具含进嘴里，模拟深喉的动作，喉部因为异物感而"呃~呃~"地干呕，眼泪都呛出来，喉结上下滚动。她用舌头在假阳具上来回扫动，发出啧啧的水声，眼神迷离地看着镜头，仿佛嘴里含着的不是假阳具而是一根滚烫的大鸡巴。\n\n她把假阳具从嘴里吐出来，整根被她的唾液舔得湿漉漉亮晶晶。她跨开腿坐在椅子上，把这根又粗又长的假阳具立起来对准自己湿透的逼穴，慢慢坐下去。"啊~好大~好满~大鸡巴操我~"地浪叫出声，腰部开始剧烈扭动，整个人上下起伏地骑着这根大鸡巴。\n\n她的双乳因为剧烈的动作上下乱晃，她一边骑一边用双手抓着自己的胸部揉捏——又掐又挤，把乳肉揉得变形，乳尖被自己掐得又红又硬。嘴巴大张发出"操我~干我~大鸡巴~好深~好爽~"的淫荡浪叫，眼神逐渐失焦，舌头伸出来，整个画面色情到极致。\n\n她又改成背对镜头，双手撑在桌子上，把假阳具从背后塞进自己的逼穴里——"啊~大鸡巴从后面干我~操死我~"地浪叫，腰部剧烈扭动，整个人被假阳具肏得不停颤抖。每一下都"噗嗤~噗嗤~"地发出水声，淫水混着唾液顺着假阳具流到地板上。最后她"啊~要去了~操死我~大鸡巴射我~"地大叫着高潮，整个人被假阳具肏到喷水，眼睛翻白，舌头伸出来，身体不停痉挛。\n\n弹幕"啊啊啊啊""我死了""这谁顶得住""硬了硬了""受不了""约炮""喷了""想操她""大屌想日""想插她逼"疯了一样刷屏，整个屏幕都被礼物遮住了。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '这谁顶得住', '硬了', '受不了', '约炮', '喷鼻血', '想操'],
+        giftTrigger: true,
+        unlockFans: 1000000
+    },
+    {
+        id: 'fan',
+        name: '电风扇吹',
+        icon: '🌬️',
+        category: '进阶',
+        actionText: `🌬️ **电风扇·被风玩到喷水** —— 主播从旁边拉来一台电风扇，故意在镜头前展示它的三档风力。然后她撩起睡衣的下摆，让电风扇对准自己已经湿透的逼穴。\n\n她把电风扇开到最大档——强劲的风力立刻把她的裙摆吹得飞起来，连内裤都被风掀开。她用手按住被风吹起的衣服，让它在最关键的部位停下，故意让阴毛在风里若隐若现。她一边"嗯~好凉~好爽~"地轻喘，一边用手揉自己的胸——风把她的衣服吹得贴在身上，显出胸部的形状和乳尖的凸起，乳尖在风里硬成了两粒小豆。\n\n她又撩起裙摆，让电风扇直接吹向自己湿透的逼穴——风一吹，阴唇被吹得微微张开，能看到里面粉嫩的穴肉和不断流出的淫水。她"啊~好凉~不要~嗯~"地浪叫，嘴巴大张，舌头伸出来，眼神迷离。风把淫水都吹成了水雾，飘得到处都是，整个画面色情到极致。\n\n她用手指撑开自己的阴唇，让电风扇的风直接吹进逼穴里——"啊~好凉~好爽~要被风吹到高潮了~"地浪叫，身体因为刺激而不停颤抖，淫水被风搅得"噗嗤~噗嗤~"地响。她一边被风玩一边用另一只手狠狠揉自己的阴蒂，"啊~不要~嗯~好爽~操我~"地浪叫，整个人快要被风吹到高潮。\n\n最后她把电风扇对准自己一根法棍，让法棍被风"吹"得在她乳沟里剧烈震动——她"啊~大鸡巴~干我~操我~"地浪叫，舌头伸出来，眼睛翻白，淫水喷涌而出，整个画面色情到让人喷血。\n\n弹幕直接爆了："受不了""硬了硬了""太骚了""想操她""喷了""这谁顶得住""约吗""大屌想插""想日她"刷到飞起，礼物雨根本停不下来。`,
+        danmuReactions: ['受不了', '硬了', '太骚了', '想操', '喷鼻血', '这谁顶得住', '约吗'],
+        giftTrigger: true,
+        unlockFans: 500000
+    },
+    {
+        id: 'squid',
+        name: '鱿鱼丝',
+        icon: '🦑',
+        category: '高级',
+        actionText: `🦑 **鱿鱼丝·触手玩穴** —— 主播端来一盘柔韧的鱿鱼丝，故意在镜头前拿起一根在手指间缠绕——鱿鱼丝的触须柔软又有弹性，她一边缠一边舔了舔嘴唇，眼神里全是骚气，仿佛手里拿着的不是鱿鱼而是一根又长又软的大鸡巴。\n\n她先把鱿鱼丝贴在自己乳尖上——柔软又有弹性的触须在乳尖上来回扫动，痒得她"啊~嗯~好痒~好爽~"地叫出声，身体不自觉地颤抖，腰部跟着扭动。乳尖在鱿鱼丝的刺激下硬成了两粒小豆，她又用鱿鱼丝在乳尖上画圈，每画一圈都"啊~"地浪叫一声。\n\n她又把鱿鱼丝沿着身体一路向下，慢慢滑过腹部、肚脐、最后滑到湿透的逼穴上。鱿鱼丝柔软又有弹性的触须在阴唇上来回扫动，让她"嗯~啊~好痒~"地浪叫。她故意用鱿鱼丝的触须捅进自己的逼穴里——柔软又有弹性的触须像几根大鸡巴一起插进穴里，"啊~好几根~好满~大鸡巴干我~"地浪叫出声。\n\n她又拿起一根长长的鱿鱼须直接塞进嘴里——模拟被大鸡巴深喉的动作，鱿鱼须在她嘴里进进出出，发出"唔~唔~"的声音，喉部因为异物感而"呃~"地干呕。她的眼神迷离地看着镜头，仿佛嘴里含着的不是鱿鱼而是一根滚烫的大鸡巴。\n\n她又用鱿鱼须插自己的逼穴——又长又软的鱿鱼须在穴里蠕动着，每动一下都让她"啊~好爽~大鸡巴干我~"地浪叫，淫水顺着鱿鱼须流到地板上。她一边用鱿鱼须操自己的穴一边用手指狠狠揉自己的阴蒂，最后"啊~要去了~操死我~大鸡巴~"地大叫着高潮，整个人被鱿鱼须玩到喷水，眼睛翻白，舌头伸出来，身体不停痉挛。\n\n弹幕"啊啊啊啊""我死了""受不了""太骚了""喷了""想操她""大屌想日""想插她逼""约炮"疯了一样刷屏，礼物大到根本看不清。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '太骚了', '喷鼻血', '想操', '约炮'],
+        giftTrigger: true,
+        unlockFans: 1000000
+    },
+    {
+        id: 'candle',
+        name: '蜡烛滴蜡',
+        icon: '🕯️',
+        category: '高级',
+        actionText: `🕯️ **蜡烛滴蜡·冰火操穴** —— 主播神秘地点燃一根红色的蜡烛，火光在她脸上跳动，把她的五官映得忽明忽暗。她故意让蜡油滴在自己手腕内侧测试温度——"嗯~好烫~"地发出一声轻喘，眼神里全是骚气。\n\n她慢慢把蜡烛倾斜，让红色的蜡油一滴滴落在大腿内侧——蜡油接触皮肤的瞬间她"啊~"地尖叫出声，身体因为烫和刺激而不停颤抖。每滴一滴她都"嗯~啊~烫死我了~大鸡巴~"地浪叫一声，腰部剧烈扭动，仿佛在享受某种甜蜜的痛苦。红色的蜡油在她白皙的皮肤上凝固成不规则的图案，像某种淫靡的标记。\n\n她又用凝固的蜡油在自己乳尖上——红蜡的灼热让乳尖硬成两粒通红的小豆。她又用蜡烛滴在自己的阴蒂上——"啊~烫~不要~嗯~好爽~大鸡巴~"地尖叫，整个人快要被烫到高潮。她用手指把凝固的蜡油轻轻抠掉，露出下面泛红的皮肤，这个动作让她"嘶~嗯~"地发出撩人的声音。\n\n她又拿起一块冰块，在滴蜡的痕迹上来回摩擦——冰凉的触感和刚才的灼热形成强烈对比，让她"啊~不要~嗯~好刺激~大鸡巴~"地叫个不停。她的身体在冰火两重天的刺激下不停颤抖，腰部扭得像水蛇，舌头伸出来，眼睛翻白。\n\n她拿起一根法棍，把法棍的末端涂满蜡油，让法棍在自己大腿内侧的蜡痕上来回滑动——"啊~大鸡巴~干我~操我~"地浪叫。她把沾满蜡油的法棍塞进自己湿透的逼穴里——"噗嗤"一声，蜡油混着淫水一起被搅进了穴里。她疯狂地用蜡油法棍干自己的穴，每一下都"噗嗤~噗嗤~"地发出水声，"操我~干死我~大鸡巴~烫死我了~"地浪叫，眼睛翻白，舌头伸出来，最后"啊~要去了~操死我~大鸡巴射我~"地大叫着高潮，整个人被冰火两重天玩到喷水，淫水喷了一地。\n\n弹幕"啊啊啊啊""我死了""受不了""太骚了""喷了""想操她""硬邦邦""大屌想日""想插她逼""约炮"疯了一样刷屏，整个屏幕都被礼物遮住了，城堡、火箭、告白气球满天飞。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '太骚了', '喷鼻血', '想操', '硬邦邦', '约炮'],
+        giftTrigger: true,
+        unlockFans: 1000000
+    },
+    {
+        id: 'icetea_f',
+        name: '冰红茶涂身',
+        icon: '🧋',
+        category: '走神',
+        actionText: `🧋 **冰红茶涂身·假装喝饮料** —— 主播从冰箱里拿出一杯冰红茶，故意在镜头前用吸管"嗦~"地吸了一口——"嗯~"地轻哼，眼神里全是若有所思的样子，仿佛在用冰红茶解渴，其实心里早就开始走神。\n\n她把冰凉的杯壁贴在自己的脖子上——"啊~好凉~"地轻呼一声，脖子因为冰凉而"嗯~"地缩了一下，鸡皮疙瘩瞬间起了一身。她用冰凉的杯子在锁骨上来回滚动——"嗯~好爽~"地浪叫，杯壁上的水珠"滴答~滴答~"地顺着锁骨流下来，画面暧昧到极致。\n\n她故意把杯子滑进自己的领口——"啊~"地尖叫一声，冰凉的杯壁贴着乳晕在乳尖上来回蹭——"嗯~好冰~大鸡巴~"地浪叫，乳尖因为冰凉而"啊~"地硬成两粒通红的小豆。她用杯壁"嗯~"地在乳晕上画圈，整个乳房被冰凉的杯壁"啊~"地刺激到不停颤抖。\n\n她把冰红茶从杯子里倒出一点在自己大腿内侧——"啊~好凉~"地浪叫，冰凉的液体顺着大腿流到阴唇上，她"嗯~"地整个人都软了——又冰又滑的触感让她"啊~"地夹紧双腿。她故意用杯盖的边缘"嗯~"地在自己的阴蒂上来回蹭——"啊~大鸡巴~不要~"地浪叫，前端"嗯~"地流出更多淫水把整个阴唇都"啊~"地弄得湿漉漉。\n\n她一边"嗯~"地假装若无其事地用吸管喝冰红茶，一边"啊~"地用杯子在乳尖上来回蹭——"啊~"地浪叫出声，嘴巴大张，舌头伸出来，眼睛翻白，整个人快要被冰凉刺激玩到高潮——"啊~要去了~"地大叫着高潮，淫水喷涌而出，喷到大腿上，整个人"嗯~嗯~"地闷哼到失神。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""想操她""想舔她""约吗"疯了一样刷屏，礼物雨根本停不下来。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '硬了', '想操', '想舔'],
+        giftTrigger: true,
+        unlockFans: 0
+    },
+    {
+        id: 'lipstick_f',
+        name: '口红涂身',
+        icon: '💄',
+        category: '走神',
+        actionText: `💄 **口红涂身·暧昧写字** —— 主播从化妆包里拿出一支正红色的口红，故意在镜头前慢慢拧出来——"嗯~"地轻哼，眼神里全是若有所思的样子，仿佛在涂口红补妆。\n\n她先在嘴唇上轻轻涂了一下——"嗯~"地抿嘴，把嘴唇涂得鲜红欲滴，故意在镜头前"啊~"地张开嘴展示了一下红唇，舌头伸出来舔了舔嘴角，画面性感到极致。\n\n她把口红往自己的锁骨上画——"嗯~"地轻哼，红色的口红在白皙的皮肤上画出一抹鲜艳的红，像某种淫靡的标记。她"啊~"地把口红一直往胸前画——"大鸡巴"两个字"嗯~"地被她写在两个乳房之间，乳尖被口红的笔尖"啊~"地划过而硬成两粒通红的小豆。\n\n她继续用口红在自己的乳晕上画圈——"啊~"地浪叫一声，口红的笔尖在乳晕上来回画，乳尖因为笔尖的触碰而"嗯~"地更红了。她故意把口红涂到乳尖上——"啊~不要~嗯~"地浪叫，鲜红的口红"嗯~"地把乳尖染成更红更骚的颜色。\n\n她把口红往自己小腹上画——"啊~"地浪叫，红色的口红在小腹上画出一个心形，里面写着"骚"字。她又把口红往自己的阴唇上画——"啊~大鸡巴~"地尖叫一声，鲜红的口红把阴唇染成更骚更淫靡的颜色，前端"嗯~"地流出更多淫水把口红都"啊~"地化开了，整个阴唇都"嗯~"地变得又红又湿。\n\n她一边"嗯~"地假装在补妆，一边"啊~"地用口红在自己身上到处画——"啊~"地浪叫出声，嘴巴大张，舌头伸出来，眼睛翻白，整个人快要被自己玩到高潮——"啊~要去了~操我~"地大叫着高潮，淫水喷涌而出，喷到大腿上，整个人"嗯~嗯~"地闷哼到失神。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""想操她""想舔她""约吗"疯了一样刷屏，城堡、火箭、告白气球满天飞。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '硬了', '想操', '想舔'],
+        giftTrigger: true,
+        unlockFans: 0
+    },
+    {
+        id: 'strawberry_f',
+        name: '草莓涂奶油',
+        icon: '🍓',
+        category: '走神',
+        actionText: `🍓 **草莓涂奶油·甜腻诱惑** —— 主播从冰箱里拿出一盒新鲜的草莓和一瓶奶油，故意在镜头前用叉子"啊~"地叉起一颗草莓——"嗯~"地轻哼，眼神里全是若有所思的样子，仿佛在准备一份甜点。\n\n她先在嘴唇上轻轻舔了一下草莓——"嗯~"地轻哼，嘴唇因为草莓的汁液而"啊~"地变得鲜红欲滴，故意在镜头前"啊~"地张开嘴展示了一下被草莓汁染红的嘴唇，舌头伸出来舔了舔嘴角，画面性感到极致。\n\n她把奶油挤在自己的乳尖上——"啊~"地轻呼一声，凉凉的奶油"嗯~"地把乳尖覆盖住，她"啊~"地故意让奶油从乳尖慢慢滑到乳晕上，整个乳房被奶油"嗯~"地涂得又白又骚。她用手指"啊~"地把奶油在乳晕上抹开——"嗯~大鸡巴~"地浪叫，乳尖因为手指和奶油的触感而"啊~"地硬成两粒通红的小豆，从奶油的白色中"嗯~"地凸出来。\n\n她把奶油挤在自己的小腹上——"啊~"地浪叫，奶油在小腹上画出一个暧昧的图案。她把奶油往自己的阴唇上挤——"啊~不要~嗯~"地浪叫，凉凉的奶油"嗯~"地覆盖住整个阴唇，前端"嗯~"地流出更多淫水把奶油都"啊~"地化开了。\n\n她用草莓在自己的乳尖上来回蹭——"啊~"地浪叫，草莓的颗粒感"嗯~"地在乳尖上摩擦，痒得她"啊~"地不停颤抖。她又把草莓塞进自己嘴里——"啊~大鸡巴~"地浪叫，用草莓模拟被大鸡巴深喉的动作，草莓在她嘴里"嗯~"地进进出出，发出"唔~唔~"的声音，整个画面色情到极致。\n\n她一边"嗯~"地假装在吃甜点，一边"啊~"地用草莓在自己身上到处蹭——"啊~"地浪叫出声，嘴巴大张，舌头伸出来，眼睛翻白，整个人快要被自己玩到高潮——"啊~要去了~操我~"地大叫着高潮，淫水喷涌而出，喷到大腿上，整个人"嗯~嗯~"地闷哼到失神。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""想操她""想舔她""约吗"疯了一样刷屏，礼物大到根本看不清。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '硬了', '想操', '想舔'],
+        giftTrigger: true,
+        unlockFans: 0
+    },
+    {
+        id: 'whip_f',
+        name: '小皮鞭',
+        icon: '🖤', 
+        category: '高级',
+        actionText: `🖤 **小皮鞭·自虐诱惑** —— 主播神秘地从抽屉里掏出一根黑色的小皮鞭，故意在镜头前甩了一下——"啪~"地一声脆响，鞭梢在空气中划出一道完美的弧线，她眯着眼"嗯~"地轻哼，眼神里全是又痛又爽的骚气。\n\n她先把皮鞭轻轻贴在自己的锁骨上——"嗯~"地轻哼，皮鞭的凉意"啊~"地让她的皮肤起了一层鸡皮疙瘩。她用鞭梢在自己的乳尖上"啊~"地轻轻划过——"嗯~好爽~大鸡巴~"地浪叫，乳尖因为皮鞭的触感而瞬间"啊~"地硬成两粒通红的小豆。\n\n她开始用力抽打自己的大腿内侧——"啪~啪~啪~"地一声声脆响，皮肤上立刻出现一道道红痕，每一鞭"啊~"都让她"嗯~"地闷哼出声，嘴巴大张，舌头伸出来。她"啊~"地故意让鞭痕留在最显眼的位置——"嗯~大鸡巴~"地浪叫，大腿内侧被打得通红发热。\n\n她又用皮鞭轻轻抽打自己的阴蒂——"啊~不要~嗯~"地浪叫，皮鞭的刺痛和阴蒂的敏感让她"嗯~"地整个人都软了。她"啊~"地用皮鞭在自己的乳沟上来回抽打——"啪~啪~啪~"地脆响，乳肉因为冲击而"嗯~"地不停晃动，乳尖被打得"啊~"地又红又肿。\n\n她一边"嗯~"地假装在接受SM调教，一边"啊~"地用皮鞭抽打自己最敏感的部位——"啊~"地浪叫出声，嘴巴大张，舌头伸出来，眼睛翻白，整个人快要被打到高潮——"啊~要去了~操我~"地大叫着高潮，淫水喷涌而出，喷到大腿上，整个人"嗯~嗯~"地闷哼到失神，鞭痕在她身上留下"啊~"地一道道红色的印记。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""想操她""想SM她""想打她"疯了一样刷屏，礼物雨根本停不下来。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '硬了', '想操', '想SM', '想打'],
+        giftTrigger: true,
+        unlockFans: 1000000
+    },
+    {
+        id: 'lingerie_f',
+        name: '蕾丝内衣',
+        icon: '👙',
+        category: '基础',
+        actionText: `👙 **蕾丝内衣·慢脱诱惑** —— 主播神秘地从身后拿出一套黑色蕾丝内衣，故意在镜头前展示了一下——半透明的黑色蕾丝在灯光下若隐若现，薄得像一层轻纱，她眯着眼"嗯~"地轻哼，眼神里全是骚气。\n\n她先把内衣贴在自己的乳尖上——"嗯~"地轻哼，蕾丝的半透明质感"啊~"地让她白皙的乳肉若隐若现。她"啊~"地故意让蕾丝在乳尖上"嗯~"地摩擦——"嗯~大鸡巴~"地浪叫，乳尖因为蕾丝的触感而瞬间"啊~"地硬成两粒凸起的小豆，从蕾丝的网眼里"嗯~"地露出来。\n\n她又把蕾丝内裤贴在自己的阴唇上——"啊~不要~嗯~"地浪叫，蕾丝的网眼"嗯~"地覆盖住整个阴唇，薄薄的布料"啊~"地让阴唇的形状若隐若现。她"嗯~"地故意让内裤在最敏感的部位"啊~"地来回摩擦——"嗯~大鸡巴~"地浪叫，前端"嗯~"地流出更多淫水把蕾丝"啊~"地打湿了。\n\n她开始慢慢把蕾丝内衣脱下来——"啊~"地浪叫一声，先把肩带从肩膀"嗯~"地滑下来，蕾丝沿着胸部"啊~"地慢慢滑落，乳肉"嗯~"地从蕾丝里"啊~"地暴露出来。她"嗯~"地故意让脱衣的速度很慢——"啊~大鸡巴~"地浪叫，整个脱衣过程"嗯~"地充满情欲。\n\n她一边"嗯~"地慢慢脱下蕾丝内衣，一边"啊~"地让身体做出各种撩人的动作——"啊~"地浪叫出声，嘴巴大张，舌头伸出来，眼睛翻白，整个人快要被自己的挑逗玩到高潮——"啊~要去了~操我~"地大叫着高潮，淫水喷涌而出，喷到大腿上，整个人"嗯~嗯~"地闷哼到失神，只穿着脱了一半的蕾丝"啊~"地挂在身上。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""想操她""想舔她""约吗"疯了一样刷屏，礼物大到根本看不清。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '硬了', '想操', '想舔', '约吗'],
+        giftTrigger: true,
+        unlockFans: 0
+    },
+    {
+        id: 'pearl_f',
+        name: '珍珠项链',
+        icon: '📿',
+        category: '进阶',
+        actionText: `📿 **珍珠项链·全身滚动** —— 主播神秘地从抽屉里拿出一串晶莹的珍珠项链，故意在镜头前展示了一下——颗颗饱满的珍珠"嗯~"地在灯光下泛着柔和的光泽，她眯着眼"嗯~"地轻哼，眼神里全是骚气。\n\n她先把珍珠项链搭在自己的锁骨上——"嗯~"地轻哼，珍珠的凉意"啊~"地让她的皮肤"嗯~"地起了一层鸡皮疙瘩。她"啊~"地故意让珍珠在锁骨上来回滚动——"嗯~大鸡巴~"地浪叫，每一颗珍珠"啊~"地滚过都让她"嗯~"地闷哼一声。\n\n她又把珍珠搭在自己的乳尖上——"啊~"地浪叫一声，凉凉的珍珠"嗯~"地在乳尖上来回滚动，每一颗"啊~"地碾过都让她"嗯~"地"啊~"地尖叫，乳尖因为珍珠的触感而"啊~"地硬成两粒通红的小豆。她"嗯~"地故意让珍珠在乳晕上"啊~"地画圈——"嗯~大鸡巴~"地浪叫，整个乳房因为珍珠的滚动而"啊~"地不停颤抖。\n\n她又把珍珠项链挂在自己的脖子上垂到乳沟里——"啊~"地浪叫，珍珠的凉意"嗯~"地让乳沟"啊~"地变得冰凉，乳肉因为珍珠的重量而"嗯~"地被微微拉开。她"啊~"地故意让珍珠在乳沟里"嗯~"地来回滚动——"嗯~大鸡巴~"地浪叫，整个胸部"啊~"地被珍珠"嗯~"地刺激得不停颤抖。\n\n她把珍珠一颗颗地往自己的阴唇上滚——"啊~不要~嗯~"地浪叫，凉凉的珍珠"嗯~"地在阴唇上来回滚动，每一颗"啊~"地碾过阴蒂都让她"嗯~"地"啊~"地尖叫出声。她"啊~"地把珍珠一颗颗"嗯~"地塞进自己的逼穴里——"嗯~大鸡巴~"地浪叫，珍珠"啊~"地一颗颗被穴肉"嗯~"地吞进去，整个画面色情到极致。\n\n她一边"嗯~"地假装在玩珍珠，一边"啊~"地用珍珠在自己身上到处滚——"啊~"地浪叫出声，嘴巴大张，舌头伸出来，眼睛翻白，整个人快要被珍珠玩到高潮——"啊~要去了~操我~"地大叫着高潮，淫水喷涌而出，珍珠"嗯~"地从穴里"啊~"地一颗颗掉出来，滚到大腿上，整个人"嗯~嗯~"地闷哼到失神。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""想操她""想舔她""约吗"疯了一样刷屏，城堡、火箭、告白气球满天飞。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '硬了', '想操', '想舔', '约吗'],
+        giftTrigger: true,
+        unlockFans: 500000
+    },
+    {
+        id: 'tea_f',
+        name: '红茶泡澡',
+        icon: '🫖',
+        category: '走神',
+        actionText: `🫖 **红茶泡澡·假装泡澡** —— 主播从厨房端来一壶刚泡好的红茶，故意在镜头前"啊~"地倒了一杯——热气"嗯~"地升腾，茶香在镜头前弥漫，她"嗯~"地轻哼，眼神里全是若有所思的样子，仿佛在享受一个惬意的下午。\n\n她先把茶杯贴在自己的脖子上——"啊~"地轻呼一声，杯壁的温热"嗯~"地让她的皮肤"嗯~"地微微泛红。她"啊~"地用温热的杯子在锁骨上来回滚动——"嗯~"地轻哼，杯壁上的水珠"滴答~滴答~"地顺着锁骨流下来，画面暧昧到极致。\n\n她故意把茶杯滑进自己的领口——"啊~"地尖叫一声，温热的杯壁"嗯~"地贴着乳晕在乳尖上来回蹭——"嗯~好热~大鸡巴~"地浪叫，乳尖因为温热而"啊~"地硬成两粒通红的小豆。她"嗯~"地用杯壁在乳晕上"啊~"地画圈，整个乳房被温热的杯壁"啊~"地刺激到不停颤抖。\n\n她又把温热的茶水从杯子里倒出一点在自己大腿内侧——"啊~好热~"地浪叫，温热的液体"嗯~"地顺着大腿流到阴唇上，她"嗯~"地整个人都软了——又热又滑的触感让她"啊~"地夹紧双腿。她"嗯~"地故意用杯盖的边缘在自己的阴蒂上来回蹭——"啊~大鸡巴~不要~"地浪叫，前端"嗯~"地流出更多淫水把杯盖都"啊~"地弄得湿漉漉。\n\n她又把温热的茶水倒在自己的乳沟里——"啊~"地浪叫，温热的液体"嗯~"地在乳沟里"啊~"地流来流去，乳肉因为温热而"嗯~"地变得更加敏感。她"啊~"地故意让茶水从乳沟"嗯~"地流到小腹、流到阴唇——"嗯~大鸡巴~"地浪叫，整个身体"啊~"地被温热的茶水"嗯~"地烫到不停颤抖。\n\n她一边"嗯~"地假装在泡茶，一边"啊~"地用温热的茶杯在自己身上到处蹭——"啊~"地浪叫出声，嘴巴大张，舌头伸出来，眼睛翻白，整个人快要被温热刺激玩到高潮——"啊~要去了~"地大叫着高潮，淫水喷涌而出，喷到大腿上，整个人"嗯~嗯~"地闷哼到失神，茶杯从手里"啊~"地滑落掉在地上。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""想操她""想舔她""约吗"疯了一样刷屏，礼物雨根本停不下来。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '硬了', '想操', '想舔'],
+        giftTrigger: true,
+        unlockFans: 0
+    },
+    {
+        id: 'mirror_f',
+        name: '镜前自摸',
+        icon: '🪞',
+        category: '高级',
+        actionText: `🪞 **镜前自摸·自我欣赏** —— 主播神秘地从旁边搬来一面落地镜，故意在镜头前摆好位置——镜子把她整个身体"嗯~"地倒映出来，她眯着眼"嗯~"地轻哼，眼神里全是又骚又得意的样子。\n\n她先在镜子前摆出一个撩人的姿势——"嗯~"地轻哼，故意让镜子里的自己"啊~"地展示出最美的曲线。她"啊~"地用手从自己的锁骨"嗯~"地一路滑到乳尖——"嗯~大鸡巴~"地浪叫，镜子里的自己也"啊~"地做着同样的动作，整个画面"嗯~"地充满情欲。\n\n她又在镜子前用手指揉自己的乳尖——"啊~"地浪叫，乳尖"嗯~"地因为手指的刺激而"啊~"地硬成两粒通红的小豆，镜子里的乳尖"嗯~"也跟着"啊~"地硬挺起来。她"嗯~"地故意对着镜子"啊~"地展示自己被玩弄的样子——"嗯~大鸡巴~"地浪叫，眼神里全是骚气。\n\n她又在镜子前用手指自慰——"啊~"地浪叫，手指"嗯~"地在阴蒂上来回画圈，镜子里的自己也"啊~"地做着同样的动作——"嗯~大鸡巴~"地浪叫，前端"嗯~"地流出更多淫水把镜子"啊~"地都打湿了一小块。她"啊~"地故意让镜子"嗯~"地反射出自己最骚的样子——"嗯~"地浪叫，整个画面色情到极致。\n\n她一边"嗯~"地假装在镜子前欣赏自己，一边"啊~"地用手指快速自慰——"啊~"地浪叫出声，嘴巴大张，舌头伸出来，眼睛翻白，看着镜子里的自己"嗯~"地快要高潮——"啊~要去了~操我~"地大叫着高潮，淫水喷涌而出，喷到镜子上，整个人"嗯~嗯~"地闷哼到失神。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""想操她""想舔她""约吗"疯了一样刷屏，礼物大到根本看不清。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '硬了', '想操', '想舔', '约吗'],
+        giftTrigger: true,
+        unlockFans: 1000000
+    }
+];
+
+// 道具动作弹窗（屏幕中央，独立于弹幕）
+// 根据身材类型替换道具文字
+function applyBodyTypeText(text) {
+    const b = getMyBodyType();
+    if (!b || !b.desc) return text;
+    let result = text;
+    // 女版关键词替换（保守替换，只替换明确的身材描述词）
+    if (gameState.myGender === 'female') {
+        const replacements = [
+            { from: '两只又大又软、沉甸甸的乳房', to: b.desc.breastLong },
+            { from: '丰满的巨乳', to: b.desc.breast },
+            { from: '乳肉', to: b.desc.breast },
+            { from: '两粒又红又硬的乳尖', to: b.desc.nipple },
+            { from: '乳尖', to: b.desc.nipple },
+            { from: '乳沟', to: b.desc.chest },
+            { from: '白皙的肌肤', to: b.desc.body + '的白皙肌肤' }
+        ];
+        for (const r of replacements) {
+            result = result.split(r.from).join(r.to);
+        }
+    } else {
+        // 男版
+        const replacements = [
+            { from: '肉棒', to: b.desc.cock },
+            { from: '胸膛', to: b.desc.chest },
+            { from: '腹肌', to: b.desc.abs },
+            { from: '青涩的小脸', to: b.desc.face },
+            { from: '稚嫩的小脸', to: b.desc.face }
+        ];
+        for (const r of replacements) {
+            result = result.split(r.from).join(r.to);
+        }
+    }
+    return result;
+}
+
+function showPropAction(actionText) {
+    const backdrop = document.getElementById('prop-action-backdrop');
+    const modal = document.getElementById('prop-action-modal');
+    const text = document.getElementById('prop-action-text');
+    if (!backdrop || !modal || !text) return;
+    // 身材文字替换
+    const styled = applyBodyTypeText(actionText);
+    // 把 **xxx** 转成 <strong>，\n 保留为换行
+    const formatted = styled.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    text.innerHTML = formatted;
+    // 滚到顶
+    modal.scrollTop = 0;
+    backdrop.classList.add('active');
+    modal.classList.add('active');
+}
+
+function closePropAction() {
+    const backdrop = document.getElementById('prop-action-backdrop');
+    const modal = document.getElementById('prop-action-modal');
+    if (backdrop) backdrop.classList.remove('active');
+    if (modal) modal.classList.remove('active');
+    // 弹窗关闭后，触发一波"看到动作后的反应弹幕"
+    if (window._pendingPropDanmu) {
+        window._pendingPropDanmu();
+        window._pendingPropDanmu = null;
+    }
+}
+
+function getAvailableProps() {
+    const db = gameState.myGender === 'male' ? malePropShowDatabase : propShowDatabase;
+    return db.filter(p => gameState.myFans >= (p.unlockFans || 0));
+}
+
+function openPropShow() {
+    if (!gameState.isLive) {
+        showToast('请先开始直播');
+        return;
+    }
+    const modal = document.getElementById('prop-modal');
+    const grid = document.getElementById('prop-grid');
+    const available = getAvailableProps();
+    const db = gameState.myGender === 'male' ? malePropShowDatabase : propShowDatabase;
+    const locked = db.filter(p => gameState.myFans < (p.unlockFans || 0));
+    
+    let html = '<div style="color:#ff6b9d;font-size:12px;margin-bottom:8px;text-align:center;">✨ 道具表演触发粉丝炸裂 + 礼物雨 ✨</div>';
+    html += available.map(p => {
+        const showCount = (gameState.propShows && gameState.propShows[p.id]) || 0;
+        return `<div class="prop-item" onclick="doPropShow('${p.id}')">
+            <div class="prop-icon">${p.icon}</div>
+            <div class="prop-name">${p.name}</div>
+            <div class="prop-count">已表演 ${showCount} 次</div>
+        </div>`;
+    }).join('');
+    
+    if (locked.length > 0) {
+        html += '<div style="color:rgba(255,255,255,0.4);font-size:11px;text-align:center;margin:10px 0 5px;">🔒 粉丝数不足解锁</div>';
+        html += '<div class="prop-grid-locked">';
+        html += locked.map(p => {
+            const need = (p.unlockFans / 10000).toFixed(0) + 'w粉';
+            return `<div class="prop-item locked">
+                <div class="prop-icon">${p.icon}</div>
+                <div class="prop-name">${p.name}</div>
+                <div class="prop-count">需 ${need}</div>
+            </div>`;
+        }).join('');
+        html += '</div>';
+    }
+    
+    grid.innerHTML = html;
+    modal.classList.add('active');
+}
+
+function closePropShow() {
+    document.getElementById('prop-modal').classList.remove('active');
+}
+
+function doPropShow(propId) {
+    const db = gameState.myGender === 'male' ? malePropShowDatabase : propShowDatabase;
+    const prop = db.find(p => p.id === propId);
+    if (!prop) return;
+
+    closePropShow();
+
+    // 1) 道具弹窗：动作描写送到屏幕中央弹窗（不混进弹幕）
+    showPropAction(prop.actionText);
+
+    // 2) 弹幕反应、礼物、涨粉，统一延迟到用户关掉弹窗后再触发
+    //    用 _pendingPropDanmu 挂一个回调，弹窗关闭时调用
+    window._pendingPropDanmu = function() {
+        // 弹幕炸裂
+        prop.danmuReactions.forEach((text, i) => {
+            setTimeout(() => {
+                const prefixes = ['【榜一】', '【土豪】', '【老司机】', '【铁粉】', '【变态】', '【VIP】'];
+                const names = ['LSP大佬', '榜一哥', '深夜寂寞客', '老司机', '骚气少年', '富婆姐姐', '变态帅', '纯情小处男'];
+                const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+                const name = prefix + names[Math.floor(Math.random() * names.length)] + Math.floor(Math.random() * 999);
+                const isH = i < 2;
+                addDanmu(name, text, true, false, isH ? 'h' : 'dirty');
+            }, i * 220);
+        });
+
+        // 礼物雨
+        if (prop.giftTrigger) {
+            setTimeout(() => {
+                const gifts = ['🎁', '💎', '🌹', '🚗', '🚀', '🏆', '💰', '👑'];
+                const giftText = ['火箭', '城堡', '跑车', '钻戒', '皇冠', '玫瑰雨', '告白气球', '梦幻城堡'];
+                const giftCount = 8 + Math.floor(Math.random() * 8);
+                for (let i = 0; i < giftCount; i++) {
+                    setTimeout(() => {
+                        const gIdx = Math.floor(Math.random() * gifts.length);
+                        const names = ['榜一大哥', '老司机', '富婆', '土豪', 'LSP一号'];
+                        const name = names[Math.floor(Math.random() * names.length)] + Math.floor(Math.random() * 999);
+                        addDanmu(name, `送出 ${giftText[gIdx]} ${gifts[gIdx]}`, true, true, 'gift');
+                        const giftValue = [100, 500, 1000, 5000, 10000][Math.floor(Math.random() * 5)];
+                        gameState.giftIncome += giftValue;
+                        gameState.myIncome += giftValue;
+                        gameState.totalGifts = (gameState.totalGifts || 0) + 1;
+                        saveGame(true);
+                    }, i * 150);
+                }
+                setTimeout(() => { showGiftEffect('💎', '礼物雨！'); }, 800);
+            }, 1500);
+        }
+
+        // 涨粉
+        setTimeout(() => {
+            const addFans = 200 + Math.floor(Math.random() * 800);
+            gameState.myFans += addFans;
+            gameState.newFans += addFans;
+            gameState.likeCount = (gameState.likeCount || 0) + 1000;
+            gameState.myLikes = (gameState.myLikes || 0) + 1000;
+            addDanmu('系统', `📈 涨粉 +${addFans} | 点赞 +1000`, false, false, 'normal');
+            saveGame(true);
+        }, 2500);
+    };
+
+    // 3) 记录表演次数 + 解锁图鉴（这些不依赖弹窗）
+    if (!gameState.propShows) gameState.propShows = {};
+    gameState.propShows[prop.id] = (gameState.propShows[prop.id] || 0) + 1;
+    if (!gameState.propCollection) gameState.propCollection = [];
+    if (!gameState.propCollection.includes(prop.id)) {
+        gameState.propCollection.push(prop.id);
+        showToast(`🎉 解锁新道具: ${prop.name}`);
+    }
+    saveGame(true);
+}
+
+// 礼物特效函数（兼容 v7）
+function showGiftEffect(emoji, text) {
+    const container = document.getElementById('gift-effect');
+    if (!container) return;
+    container.innerHTML = `<div class="gift-effect-emoji">${emoji}</div><div class="gift-effect-text">${text}</div>`;
+    setTimeout(() => { container.innerHTML = ''; }, 2500);
+}
+
+const presetPhrases = [
+    { text: '胸好大想摸吗', category: '挑逗' },
+    { text: '今天穿的黑丝撕不撕', category: '诱惑' },
+    { text: '想要礼物刷给我', category: '求赏' },
+    { text: '一个人好寂寞想约', category: '寂寞' },
+    { text: '腰好细想操', category: '暗示' },
+    { text: '扭给你看想看吗', category: '动作' },
+    { text: '下面好痒想要', category: '淫荡' },
+    { text: '今晚睡不着视频吗', category: '寂寞' },
+    { text: '大哥刷礼物想看什么', category: '互动' },
+    { text: '屁股好翘想日', category: '身材' },
+    { text: '好想被操', category: '淫荡' },
+    { text: '脱一件给你看好不好', category: '诱惑' },
+    { text: '腿好白想舔', category: '身材' },
+    { text: '想被你干', category: '淫荡' },
+    { text: '叫给你听', category: '动作' },
+    { text: '爱你们', category: '互动' },
+    { text: '多少钱一晚', category: '求约' },
+    { text: '想包养你', category: '求约' },
+];
+
+function initPresetGrid() {
+    document.getElementById('preset-grid').innerHTML = presetPhrases.map(p => 
+        `<div class="preset-item" onclick="sendPresetMessage('${p.text}')"><div class="preset-category">${p.category}</div>${p.text}</div>`
+    ).join('');
+}
+
+function startDanmu() {
+    stopDanmu();
+    gameState.danmuInterval = setInterval(() => {
+        if (!gameState.isLive) return;
+        const count = Math.floor(Math.random() * 3) + 1;
+        for (let i = 0; i < count; i++) {
+            setTimeout(() => generateRandomDanmu(), i * 500);
+        }
+    }, 1800);
+}
+function stopDanmu() { if (gameState.danmuInterval) { clearInterval(gameState.danmuInterval); gameState.danmuInterval = null; } }
+
+function generateRandomDanmu() {
+    const prefixes = ['', '【榜一】', '【土豪】', '【老司机】', '【铁粉】', '【变态】'];
+    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+    const names = gameState.myGender === 'male'
+        ? ['隔壁老王', 'LSP一号', '榜一大哥', '老司机', '深夜访客', '寂寞大叔', '纯情小处男', '富婆', '变态帅', '骚气少年', '公狗腰', '猛男', '健身教练']
+        : ['隔壁老王', 'LSP一号', '榜一大哥', '老司机', '深夜访客', '寂寞大叔', '纯情小处男', '富婆', '变态帅', '骚气少年'];
+    const name = prefix + names[Math.floor(Math.random() * names.length)] + Math.floor(Math.random() * 999);
+    const pool = gameState.myGender === 'male' ? maleDirtyDanmuPool : dirtyDanmuPool;
+    const text = pool[Math.floor(Math.random() * pool.length)];
+    const isVip = prefix !== '';
+    const isGift = Math.random() > 0.93;
+    addDanmu(name, text, isVip, isGift, 'dirty');
+}
+
+function addDanmu(name, text, isVip = false, isGift = false, type = 'normal') {
+    const container = document.getElementById('danmu-container');
+    const danmuItem = document.createElement('div');
+    danmuItem.className = 'danmu-item';
+    
+    let avatarEmoji, nameClass, contentClass;
+    if (name === '我' || name === '我(主播)') {
+        avatarEmoji = '💋'; nameClass = 'danmu-name host'; contentClass = 'danmu-content host';
+    } else if (isGift) {
+        avatarEmoji = '🎁'; nameClass = isVip ? 'danmu-name vip' : 'danmu-name'; contentClass = 'danmu-content gift';
+    } else if (type === 'h') {
+        avatarEmoji = '🔞'; nameClass = isVip ? 'danmu-name vip' : 'danmu-name'; contentClass = 'danmu-content h';
+    } else if (type === 'dirty') {
+        avatarEmoji = '🔥'; nameClass = isVip ? 'danmu-name vip' : 'danmu-name'; contentClass = 'danmu-content dirty';
+    } else {
+        avatarEmoji = isVip ? '👑' : '💕'; nameClass = isVip ? 'danmu-name vip' : 'danmu-name'; contentClass = 'danmu-content';
+    }
+    
+    danmuItem.innerHTML = `<div class="danmu-avatar">${avatarEmoji}</div><div class="${contentClass}"><span class="${nameClass}">${name}:</span><span class="danmu-text">${text}</span></div>`;
+    const wasAtBottom = (container.scrollHeight - container.scrollTop - container.clientHeight) < 60;
+    container.appendChild(danmuItem);
+    while (container.children.length > 100) container.removeChild(container.firstChild);
+    if (wasAtBottom) {
+        container.scrollTop = container.scrollHeight;
+        gameState.unreadDanmu = 0;
+        updateUnreadBadge();
+    } else {
+        gameState.unreadDanmu = (gameState.unreadDanmu || 0) + 1;
+        updateUnreadBadge();
+    }
+}
+
+function updateUnreadBadge() {
+    const badge = document.getElementById('danmu-unread-badge');
+    const count = document.getElementById('danmu-unread-count');
+    if (!badge || !count) return;
+    if ((gameState.unreadDanmu || 0) > 0) {
+        count.textContent = gameState.unreadDanmu;
+        badge.classList.add('show');
+    } else {
+        badge.classList.remove('show');
+    }
+}
+
+function scrollToBottomDanmu() {
+    const container = document.getElementById('danmu-container');
+    if (!container) return;
+    container.scrollTop = container.scrollHeight;
+    gameState.unreadDanmu = 0;
+    updateUnreadBadge();
+}
+
+function processHostMessage(message) {
+    addDanmu('我', message, false, false, 'host');
+    
+    let triggered = false;
+    let allReactions = [];
+    let shouldGift = false;
+    let reactionType = 'dirty';
+    
+    for (let keyword in hostTriggerMap) {
+        if (message.includes(keyword)) {
+            triggered = true;
+            const response = hostTriggerMap[keyword];
+            allReactions = allReactions.concat(response.reactions);
+            if (response.gift) shouldGift = true;
+            if (response.type === 'h') reactionType = 'h';
+        }
+    }
+    
+    if (triggered) {
+        showFanReaction(message, allReactions);
+        setTimeout(() => {
+            const burstCount = Math.floor(Math.random() * 8) + 6;
+            for (let i = 0; i < burstCount; i++) {
+                setTimeout(() => {
+                    const reaction = allReactions[Math.floor(Math.random() * allReactions.length)];
+                    const name = 'LSP' + Math.floor(Math.random() * 9999);
+                    addDanmu(name, reaction, Math.random() > 0.5, false, reactionType);
+                }, i * 200);
+            }
+        }, 400);
+        if (shouldGift || gameState.isPK) setTimeout(() => triggerGiftRain(), 1000);
+    }
+}
+
+function showFanReaction(hostMsg, reactions) {
+    const hint = document.getElementById('fan-reaction-hint');
+    const textDiv = document.getElementById('fan-reaction-text');
+    textDiv.innerHTML = `你说"${hostMsg}" → 粉丝:"${reactions.slice(0,3).join(' / ')}"...`;
+    hint.classList.add('active');
+    setTimeout(() => hint.classList.remove('active'), 5000);
+}
+
+function triggerGiftRain() {
+    const gifts = [
+        { name: '小心心', emoji: '💝', price: 1 }, { name: '玫瑰', emoji: '🌹', price: 10 },
+        { name: '棒棒糖', emoji: '🍭', price: 50 }, { name: '钻戒', emoji: '💍', price: 100 },
+        { name: '跑车', emoji: '🏎️', price: 500 }, { name: '火箭', emoji: '🚀', price: 1000 },
+        { name: '游艇', emoji: '🛥️', price: 2000 }, { name: '城堡', emoji: '🏰', price: 5000 }
+    ];
+    const count = Math.floor(Math.random() * 6) + 3;
+    for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+            const gift = gifts[Math.floor(Math.random() * gifts.length)];
+            const name = '【土豪】大哥' + Math.floor(Math.random() * 999);
+            const num = Math.floor(Math.random() * 10) + 1;
+            addDanmu(name, `送了 ${gift.emoji}${gift.name} x${num}`, true, true);
+            showGiftEffect(gift.emoji, name);
+            gameState.giftIncome += gift.price * num;
+            gameState.myIncome += gift.price * num;
+            saveGame(true); // 礼物立即存
+        }, i * 400);
+    }
+}
+
+function showGiftEffect(emoji, fanName) {
+    const container = document.getElementById('gift-effect');
+    container.innerHTML = `<div class="gift-effect-emoji">${emoji}</div><div class="gift-effect-text">${fanName} 大气！</div>`;
+    setTimeout(() => container.innerHTML = '', 2000);
+}
+
+function startVoiceReply(e) {
+    e.preventDefault();
+    gameState.isRecording = true;
+    document.getElementById('voice-btn').classList.add('recording');
+    document.getElementById('voice-overlay').classList.add('active');
+}
+function endVoiceReply(e) {
+    e.preventDefault();
+    if (!gameState.isRecording) return;
+    gameState.isRecording = false;
+    document.getElementById('voice-btn').classList.remove('recording');
+    document.getElementById('voice-overlay').classList.remove('active');
+    const voiceTexts = ['今天穿的黑丝', '胸大腰细', '想要礼物', '扭给你看', '一个人好寂寞', '大哥想看什么', '下面好痒', '想被操', '爱你们'];
+    processHostMessage(voiceTexts[Math.floor(Math.random() * voiceTexts.length)]);
+}
+
+function openPreset() { document.getElementById('preset-modal').classList.add('active'); }
+function closePreset() { document.getElementById('preset-modal').classList.remove('active'); }
+function sendPresetMessage(text) { closePreset(); processHostMessage(text); }
+function openTextInput() { document.getElementById('text-input-modal').classList.add('active'); document.getElementById('text-input-field').focus(); }
+function closeTextInput() { document.getElementById('text-input-modal').classList.remove('active'); }
+function sendTextReply() {
+    const input = document.getElementById('text-input-field');
+    const text = input.value.trim();
+    if (!text) return;
+    processHostMessage(text);
+    input.value = '';
+    closeTextInput();
+}
+
+function simulateAudience() {
+    const interval = setInterval(() => {
+        if (!gameState.isLive) { clearInterval(interval); return; }
+        if (Math.random() > 0.3) {
+            gameState.viewerCount += Math.floor(Math.random() * 150) + 30;
+            document.getElementById('viewer-count').textContent = formatNumber(gameState.viewerCount);
+        }
+        if (Math.random() > 0.2) {
+            gameState.likeCount += Math.floor(Math.random() * 100) + 20;
+            document.getElementById('like-count').textContent = formatNumber(gameState.likeCount);
+        }
+        if (Math.random() > 0.95) gameState.newFans++;
+    }, 800);
+}
+
+function startPK() {
+    gameState.isPK = true;
+    document.getElementById('pk-bar').classList.add('active');
+    addDanmu('系统', '⚔️ PK开始！对面骚货来找虐了！', true);
+    let myScore = 0, oppScore = 0;
+    gameState.pkInterval = setInterval(() => {
+        if (!gameState.isLive) { clearInterval(gameState.pkInterval); return; }
+        myScore += Math.floor(Math.random() * 800) + 200;
+        oppScore += Math.floor(Math.random() * 600) + 150;
+        document.getElementById('pk-my-score').textContent = formatNumber(myScore);
+        document.getElementById('pk-opp-score').textContent = formatNumber(oppScore);
+        document.getElementById('pk-fill').style.width = ((myScore / (myScore + oppScore)) * 100) + '%';
+    }, 1000);
+    setTimeout(() => {
+        clearInterval(gameState.pkInterval);
+        document.getElementById('pk-bar').classList.remove('active');
+        gameState.isPK = false;
+        addDanmu('系统', myScore > oppScore ? '🎉 赢了！把那骚货打趴下！' : '输了...对面更骚', true);
+    }, 60000);
+}
+
+function formatNumber(num) {
+    if (num >= 1000000) return (num / 10000).toFixed(0) + 'w';
+    if (num >= 10000) return (num / 10000).toFixed(1) + 'w';
+    return num.toLocaleString();
+}
+
+// ====== 通用提示 ======
+function showToast(msg, duration = 2000) {
+    let toast = document.getElementById('global-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'global-toast';
+        toast.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.9);color:#fff;padding:14px 28px;border-radius:24px;font-size:14px;z-index:9999;border:1px solid #ff2d78;box-shadow:0 5px 30px rgba(255,45,120,0.5);max-width:80vw;text-align:center;';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.display = 'block';
+    toast.style.opacity = '1';
+    setTimeout(() => {
+        toast.style.transition = 'opacity 0.4s';
+        toast.style.opacity = '0';
+        setTimeout(() => { toast.style.display = 'none'; toast.style.transition = ''; }, 400);
+    }, duration);
+}
+
+// ====== 初始化（loadGame已在上面执行）======
+generateDailyMessages();
+renderProfile();
+// ====== v8.3 男版道具表演系统 ======
+// 男性身体向：含弄/被开发/后庭/口交/被干/精液/呻吟
+const malePropShowDatabase = [
+    {
+        id: 'banana_m',
+        name: '香蕉含弄',
+        icon: '🍌',
+        category: '基础',
+        actionText: `🍌 **香蕉含弄·深喉与自慰** —— 主播从旁边的果盘里挑出一根又粗又长的香蕉，故意在镜头前慢慢剥皮，露出里面白嫩嫩、形状暧昧的果肉。他用两根手指捏着香蕉，对准镜头展示了一下它的粗细长度，嘴角一抹又骚又委屈的笑，仿佛手里拿着的不是香蕉而是一根大鸡巴。\n\n他含住整根香蕉开始吞吐——嘴巴只留一截在外面，舌头在果肉上来回舔，发出"唔~唔~"的声音，喉部因为香蕉的深入而"呃~"地干呕，眼泪都呛出来。他的眼神迷离地看着镜头，整个画面仿佛在给一根真屌口交——"嗯~嗯~好大~含不下~"地闷哼，喉结一上一下地滚动。\n\n他一只手扶着香蕉继续吞吐，另一只手慢慢滑到自己的裆部，隔着内裤揉自己已经硬到发疼的肉棒——"嗯~想要~想被操~"地浪叫，眉头紧皱，舌头伸出来，口水和香蕉汁顺着嘴角流下来。他一边"唔~唔~"地给香蕉深喉，一边"嗯~啊~"地揉自己的肉棒，整个画面色情到极致。\n\n他突然加速——"唔~唔~唔~"地疯狂用香蕉肏自己的嘴，同时用手指隔着内裤疯狂撸自己的肉棒，整个人"嗯~嗯~"地闷哼到身体剧烈颤抖，最后"嗯~嗯~"地大叫着高潮——肉棒在内裤里喷出精液，浓稠的白色液体把内裤洇湿一大块，整个人瘫软在床上喘着粗气，舌头伸出来，眼神涣散，仿佛被一根真大鸡巴操到失神。\n\n弹幕疯了一样刷："啊啊啊啊""我死了""受不了""太骚了""想日他""大鸡巴想插他嘴""想干他后庭""骚货""约吗"刷到飞起，礼物雨糊屏。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '太骚了', '想日', '大鸡巴想插', '约吗'],
+        giftTrigger: true,
+        unlockFans: 0
+    },
+    {
+        id: 'ice_m',
+        name: '冰块游身',
+        icon: '🧊',
+        category: '基础',
+        actionText: `🧊 **冰块游身·冰火刺激** —— 主播从冰桶里掏出几块晶莹剔透的冰块，故意在镜头前展示了一下，然后含住一块冰在嘴里"唔~"地轻哼，让冰块在嘴里慢慢融化，嘴巴因为冰冷而张开，眼神里全是骚气。\n\n他把冰块贴在自己的乳尖上——"啊~好凉~"地尖叫一声，身体因为刺激而不停颤抖，冰凉的水珠顺着胸膛流下来。他用冰块在乳晕上来回画圈，乳尖因为冰冷而硬成两粒通红的小豆，他"嗯~啊~好冰~好爽~"地浪叫，嘴巴大张，舌头伸出来。\n\n冰块顺着胸膛一路往下滑——"啊~嗯~"地浪叫，冰凉的水珠从胸膛流到腹部、流到肚脐、流到肉棒上——"啊~不要~嗯~"地浪叫出声，肉棒被冰块冰得"嘶~"地一声缩了一下，但很快又硬了起来。他用冰块在肉棒上来回撸动——"啊~好冰~嗯~好爽~大鸡巴~"地浪叫，肉棒被冰得发红但更硬了，前端开始流出透明的前列腺液。\n\n他又把冰块贴在自己的后庭上——"啊~不要~嗯~好刺激~"地尖叫，整个人身体剧烈颤抖，后庭因为冰凉而收缩了一下，褶皱都被冰块贴着。他"嗯~啊~想被开发~"地浪叫，眼睛翻白，舌头伸出来，整个人快要被冰块玩到高潮。\n\n他用冰块直接抵在马眼上来回摩擦——"啊~大鸡巴~嗯~要去了~"地浪叫，肉棒剧烈跳动了几下，"啊~"地大叫着射精，浓稠的白色精液喷涌而出，喷到自己的胸膛和肚子上，整个人"嗯~嗯~"地闷哼到失神。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""想操他""想舔他""开发他"疯了一样刷屏，礼物雨根本停不下来。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '硬了', '想操', '想舔'],
+        giftTrigger: true,
+        unlockFans: 0
+    },
+    {
+        id: 'towel_m',
+        name: '毛巾擦身',
+        icon: '🧖',
+        category: '基础',
+        actionText: `🧖 **毛巾擦身·搓澡诱惑** —— 主播拿起一条柔软的白毛巾，假装刚洗完澡的样子，故意在镜头前把毛巾搭在自己肩上，下半身只围了条浴巾，露出精瘦的胸膛和若隐若现的肉棒轮廓。\n\n他开始用毛巾擦自己的胸膛——"嗯~"地轻哼，毛巾在乳尖上"啊~"地擦过，他故意让毛巾在乳尖上多停留一下，眼神里全是骚气。他又把毛巾搓成一团在乳晕上来回搓——"啊~好爽~嗯~"地浪叫，乳尖因为摩擦而硬成两粒通红的小豆。\n\n毛巾顺着胸膛往下滑——"嗯~"地轻哼，他故意让毛巾擦过腹部、肚脐，最后滑到肉棒上——"啊~"地尖叫一声，毛巾隔着浴巾包裹住肉棒来回搓——"嗯~啊~好爽~大鸡巴~"地浪叫，肉棒因为摩擦而快速膨胀，把浴巾顶起一个帐篷。他用毛巾在肉棒上用力撸动——"啊~用力~嗯~操我~"地浪叫，整个人快要被自己玩到高潮。\n\n他突然把浴巾扯开——"啊~大鸡巴~操我~"地浪叫，让肉棒完全暴露在镜头前，前端已经开始流出透明的前列腺液。他用湿毛巾紧紧裹住肉棒开始上下撸动——"啊~大鸡巴~嗯~要去了~"地浪叫，嘴巴大张，舌头伸出来，眼神迷离。\n\n他用毛巾的另一头去擦自己的后庭——"啊~嗯~后庭~"地浪叫，毛巾的粗糙质感蹭过敏感的褶皱，他"嗯~啊~"地闷哼到身体剧烈颤抖，最后"啊~"地大叫着射精——浓稠的白色精液喷涌而出，把毛巾和自己胸膛都打湿了，整个人"嗯~嗯~"地闷哼到失神。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""想操他""大鸡巴想干他"疯了一样刷屏，礼物大到根本看不清。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '硬了', '想操', '大鸡巴想干'],
+        giftTrigger: true,
+        unlockFans: 0
+    },
+    {
+        id: 'candle_m',
+        name: '蜡烛滴蜡',
+        icon: '🕯️',
+        category: '基础',
+        actionText: `🕯️ **蜡烛滴蜡·冰火刺激** —— 主播神秘地点燃一根红色的蜡烛，火光在他脸上跳动，把他的五官映得忽明忽暗。他故意让蜡油滴在自己手腕内侧测试温度——"嘶~好烫~"地倒吸一口气，眼神里全是又痛又爽的骚气。\n\n他慢慢倾斜蜡烛，让红色蜡油一滴滴落在胸膛上——"啊~"地尖叫一声，身体因为灼热而不停颤抖，每滴一滴都"嗯~啊~烫~大鸡巴~"地浪叫一声，腰部剧烈扭动，仿佛在享受某种甜蜜的痛苦。红色蜡油在他白皙的皮肤上凝固成不规则的图案，像某种淫靡的标记。\n\n他又用凝固的蜡油在乳尖上——"啊~烫~"地尖叫，乳尖因为灼热而硬成两粒通红的小豆。他又让蜡油滴在自己的肚脐里——"啊~不要~嗯~"地浪叫，整个人因为刺激而不停颤抖。\n\n他拿起一块冰块，在滴蜡的痕迹上来回摩擦——冰凉的触感和刚才的灼热形成强烈对比，让他"啊~不要~嗯~好刺激~大鸡巴~"地叫个不停。他的身体在冰火两重天的刺激下不停颤抖，腰部扭得像水蛇，舌头伸出来，眼睛翻白。\n\n他让蜡油直接滴在肉棒上——"啊~烫~嗯~好爽~"地尖叫，红蜡的灼热让肉棒剧烈跳动了一下，前端流出更多前列腺液。他一边用冰块冷却被烫到通红的肉棒，一边"啊~大鸡巴~操我~"地浪叫，整个人快要被冰火两重天玩到喷射——"啊~要去了~操我~"地大叫着射精，浓稠的白色精液喷涌而出，喷到自己的胸膛和肚子上，整个人瘫软在床上喘着粗气，舌头伸出来，眼神涣散。\n\n弹幕"啊啊啊啊""我死了""受不了""太骚了""喷了""想操他""大鸡巴想日他"疯了一样刷屏，整个屏幕都被礼物遮住了，城堡、火箭、告白气球满天飞。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '太骚了', '喷鼻血', '想操', '大鸡巴想日'],
+        giftTrigger: true,
+        unlockFans: 0
+    },
+    {
+        id: 'baguette_m',
+        name: '法棍夹弄',
+        icon: '🥖',
+        category: '进阶',
+        actionText: `🥖 **法棍夹弄·前后夹击** —— 主播从桌面下抽出一根又粗又长的法棍，故意对着镜头撸了两下让粉丝看清它的尺寸。法棍又硬又直，在灯光下泛着金黄色的光泽，他用纤细的手指握着它，故意在镜头前慢慢上下撸动，发出"啧~啧~"的水声，仿佛在给真屌打飞机。\n\n他把法棍举到嘴边，舌尖沿着法棍从头舔到尾，整根法棍被他的唾液舔得湿漉漉亮晶晶。他眯着眼"嗯~"地轻喘，仿佛嘴里含着的不是面包而是一根滚烫的大鸡巴。然后他用一只手握着法棍让它竖直，另一只手"嗯~"地伸到自己的后庭——手指沾着自己的前列腺液在褶皱上来回揉——"啊~嗯~"地浪叫，眼神里全是骚气。\n\n他把法棍竖着抵在自己的马眼上——"啊~"地浪叫一声，前端因为被法棍抵着而"嗯~"地跳动了一下，前列腺液顺着法棍流下来。他用一只手握住法棍上下撸动，模拟被大鸡巴干穴的节奏；另一只手伸到后面用手指"啊~嗯~开发~"地抠自己的后庭。\n\n他用法棍抵在自己的乳尖上——"啊~大鸡巴~"地浪叫，法棍头在乳晕上来回摩擦，乳尖因为刺激而硬成两粒通红的小豆。同时他的手指在后面"嗯~啊~"地快速抠动后庭，整个人"啊~要被前后夹击~嗯~"地浪叫，腰部剧烈扭动，仿佛同时被两根大鸡巴操。\n\n他加速——"啊~大鸡巴~干我~前后都要~嗯~"地浪叫，嘴巴大张，舌头伸出来，眼睛翻白，整个人快要被前后夹击玩到高潮——"啊~要去了~操死我~"地大叫着射精，浓稠的白色精液从法棍和肉棒之间喷涌而出，喷到自己的胸膛和肚子上，整个人"嗯~嗯~"地闷哼到失神。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""大鸡巴想插他""想日他""前后一起操"疯了一样刷屏，礼物大到根本看不清。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '硬了', '大鸡巴想插', '想日'],
+        giftTrigger: true,
+        unlockFans: 500000
+    },
+    {
+        id: 'rope_m',
+        name: '绳子捆绑',
+        icon: '🪢',
+        category: '进阶',
+        actionText: `🪢 **绳子捆绑·被缚操弄** —— 主播从抽屉里掏出一卷红色的麻绳，故意在镜头前展示了一下它粗糙的质感，眼神里全是又骚又委屈的样子，仿佛要被"教训"一样。\n\n他先把绳子在自己身上缠绕——"嗯~"地轻哼，绳子从他的胸膛开始绕，绕到乳晕上把乳尖"啊~"地勒住，他"嗯~啊~"地浪叫，乳尖因为绳子的挤压而变得更敏感。他又把绳子绕到肉棒根部系紧——"啊~不要~嗯~"地浪叫，肉棒被勒得"嘶~"地跳动，前端流出更多前列腺液。\n\n他故意把双手背到身后用绳子捆起来——"啊~嗯~"地浪叫，整个上半身被绳子捆出性感的形状，乳尖被绳子勒出"啊~"地叫声，肉棒被根部勒得"嗯~"地跳动。他"嗯~啊~"地浪叫，腰部剧烈扭动，整个人仿佛被SM调教一样骚。\n\n他跪在床上让镜头从后面拍——"啊~大鸡巴~操我~"地浪叫，让镜头看清被绳子捆着的双手和勒着肉棒根部的绳子，整个画面色情到极致。他一边"嗯~啊~"地自己扭腰，一边用一只手"啊~开发~"地伸到后面抠自己的后庭。\n\n他拿起旁边一根又粗又长的法棍抵在自己的后庭上——"啊~大鸡巴~干我~"地浪叫，法棍头在褶皱上来回蹭，前列腺液把法棍头沾湿了。他一边"啊~"地用法棍干自己的后庭，一边"嗯~"地扭腰求操——"啊~大鸡巴~操我~用力~"地浪叫，嘴巴大张，舌头伸出来，眼睛翻白。\n\n他用法棍快速抽插自己的后庭——"啊~啊~大鸡巴~干死我~"地浪叫，整个人"嗯~"地被前后夹击到身体剧烈颤抖，最后"啊~要去了~操我~"地大叫着高潮——浓稠的白色精液从被绳子勒着的肉棒前端喷涌而出，喷到床单上，整个人"嗯~嗯~"地闷哼到失神，舌头伸出来，眼神涣散。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""大鸡巴想操他""想SM他""想干他"疯了一样刷屏，礼物雨根本停不下来。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '大鸡巴想操', '想SM', '想干'],
+        giftTrigger: true,
+        unlockFans: 500000
+    },
+    {
+        id: 'oil_m',
+        name: '精油按摩',
+        icon: '🫒',
+        category: '进阶',
+        actionText: `🫒 **精油按摩·全身欲火** —— 主播从旁边拿起一瓶透明的精油，故意在镜头前挤了一些在手上——"嗯~"地轻哼，精油在手指间拉出粘稠的丝，整个画面暧昧到极致。\n\n他把精油涂在自己的胸膛上开始慢慢按摩——"嗯~"地浪叫，滑腻的精油在胸膛上被自己的手指"啊~"地抹开，乳尖因为手指的触碰而"嗯~"地硬成两粒小豆。他故意用指尖在乳晕上画圈——"啊~好爽~大鸡巴~"地浪叫，乳尖因为精油的滑腻而变得更敏感。\n\n精油顺着胸膛往下滑——"嗯~"地浪叫，他故意用手指在肚脐里"啊~"地画圈，又用精油在自己的腹肌上来回滑动——"啊~"地浪叫，整个腹肌因为精油的滑腻而显得更立体，更色情。\n\n精油滑到肉棒上——"啊~"地尖叫一声，他用沾满精油的手握住自己的肉棒开始上下撸动——"啊~大鸡巴~嗯~"地浪叫，精油让撸动变得更滑更顺，肉棒被精油"嗯~"地裹着快速上下——前端流出更多前列腺液混着精油，把整个肉棒都"啊~"地弄得亮晶晶。\n\n他又用精油涂在自己的后庭上——"啊~不要~嗯~"地浪叫，精油的滑腻让他的手指在后庭里"嗯~"地快速抽插，整个人"啊~"地浪叫出声。他一边"啊~"地用手操自己的后庭，一边"嗯~"地用手撸自己的肉棒——前后同时被自己玩弄，整个人"啊~大鸡巴~操我~"地浪叫到身体剧烈颤抖。\n\n他加速——"啊~大鸡巴~操我~用力~嗯~"地浪叫，嘴巴大张，舌头伸出来，眼睛翻白，整个人快要被前后同时玩到高潮——"啊~要去了~操我~"地大叫着射精，浓稠的白色精液混着精油喷涌而出，喷到自己的胸膛和肚子上，整个人"嗯~嗯~"地闷哼到失神，瘫软在床上喘着粗气。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""大鸡巴想干他""想操他""想舔他"疯了一样刷屏，城堡、火箭、告白气球满天飞。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '硬了', '大鸡巴想干', '想操', '想舔'],
+        giftTrigger: true,
+        unlockFans: 500000
+    },
+    {
+        id: 'feather_m',
+        name: '羽毛游身',
+        icon: '🪶',
+        category: '进阶',
+        actionText: `🪶 **羽毛游身·全身敏感** —— 主播拿起一根柔软的大羽毛，故意在镜头前展示了一下它轻盈的绒毛，然后眯着眼"嗯~"地轻哼，眼神里全是骚气。\n\n他把羽毛贴在自己的脖子上——"啊~"地尖叫一声，脖子因为羽毛的触感而"嗯~"地缩了一下，鸡皮疙瘩瞬间起了一身。他用羽毛在锁骨上来回扫——"嗯~啊~好痒~好爽~"地浪叫，整个肩膀因为酥痒而不停颤抖。\n\n羽毛顺着锁骨滑到乳尖上——"啊~"地尖叫，乳尖因为羽毛的轻触而瞬间"嗯~"地硬成两粒通红的小豆，他"啊~好痒~大鸡巴~"地浪叫，整个胸膛因为酥痒而剧烈起伏。他故意让羽毛在乳晕上"嗯~"地画圈——"啊~不要~嗯~"地浪叫，身体不停扭动，乳尖被羽毛扫得通红。\n\n羽毛顺着腹部一路往下滑——"啊~嗯~"地浪叫，羽毛扫过肚脐时"嗯~"地让他身体剧烈收缩，扫到小腹时"啊~"地让他整个人都软了。羽毛滑到肉棒上——"啊~"地尖叫，柔软的绒毛在肉棒上来回扫，他"嗯~啊~好痒~"地浪叫，肉棒因为酥痒而"嗯~"地不停跳动，前端流出透明的前列腺液。\n\n羽毛扫过肉棒后来到后庭——"啊~不要~嗯~"地尖叫，柔软的绒毛在敏感的褶皱上来回扫，他"啊~好痒~开发~"地浪叫，整个后庭因为酥痒而不停收缩。他用羽毛在马眼上来回扫——"啊~大鸡巴~嗯~要去了~"地浪叫，肉棒剧烈跳动了几下。\n\n他一边用羽毛扫自己的后庭，一边用手握住自己的肉棒"嗯~"地撸动——"啊~大鸡巴~操我~"地浪叫，整个人快要被羽毛玩到高潮——"啊~"地大叫着射精，浓稠的白色精液喷涌而出，喷到自己的胸膛和肚子上，整个人"嗯~嗯~"地闷哼到失神，舌头伸出来，眼神涣散。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""想操他""想舔他"疯了一样刷屏，礼物雨根本停不下来。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '硬了', '想操', '想舔'],
+        giftTrigger: true,
+        unlockFans: 500000
+    },
+    {
+        id: 'toy_m',
+        name: '按摩棒开发',
+        icon: '🔌',
+        category: '高级',
+        actionText: `🔌 **按摩棒·开发后庭** —— 主播神秘地从抽屉里掏出一根又粗又长的黑色按摩棒，故意在镜头前展示了一下它的尺寸——比法棍还粗还长，前端还有一个龟头形状的凸起，"嗡~"地震动着，发出低沉的马达声。\n\n他先在按摩棒上涂满润滑油——"嗯~"地轻哼，粘稠的润滑油顺着棒身流下来，整个画面色情到极致。他趴在床上，撅起屁股让镜头从后面拍——"啊~大鸡巴~干我~"地浪叫，镜头里能清楚看到他半张的后庭和不停收缩的褶皱。\n\n他慢慢把按摩棒抵在自己的后庭上——"啊~"地尖叫一声，按摩棒的龟头在褶皱上来回蹭，前列腺液和润滑油混在一起把整个后庭都弄得"嗯~"地湿漉漉。他"啊~嗯~"地浪叫，腰部剧烈扭动，把按摩棒一点一点"嗯~"地塞进后庭里——"啊~大鸡巴~好大~插我~嗯~"地浪叫，整根按摩棒"啊~"地被后庭吞进去一大半。\n\n他打开按摩棒的震动开关——"嗡~嗡~嗡~"地响，按摩棒在后庭里"啊~"地震动，他"嗯~啊~大鸡巴~操我~"地浪叫，整个人因为震动而不停颤抖，腰部剧烈扭动，把按摩棒在自己后庭里"啊~"地反复抽插——"啊~大鸡巴~干我~用力~嗯~"地浪叫，嘴巴大张，舌头伸出来，眼睛翻白。\n\n他一只手握紧按摩棒在后面"啊~"地疯狂抽插，另一只手"嗯~"地握住自己的肉棒开始快速撸动——"啊~大鸡巴~操我~前后都要~嗯~"地浪叫，整个人被前后同时玩弄到身体剧烈颤抖——"啊~要去了~操死我~"地大叫着高潮，肉棒"啊~"地喷射，浓稠的白色精液喷涌而出，喷到床单上，整个人"嗯~嗯~"地闷哼到失神，舌头伸出来，眼神涣散。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""大鸡巴想干他""想操他后庭""想日他"疯了一样刷屏，礼物大到根本看不清。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '大鸡巴想干', '想操后庭', '想日'],
+        giftTrigger: true,
+        unlockFans: 1000000
+    },
+    {
+        id: 'cucumber_m',
+        name: '黄瓜开发',
+        icon: '🥒',
+        category: '高级',
+        actionText: `🥒 **黄瓜切片·开发后庭** —— 主播从果盘里拿出一根又粗又长的黄瓜，故意在镜头前展示了一下它笔直的形状和粗细——"嗯~"地轻哼，眼神里全是骚气。\n\n他用刀把黄瓜切成两段——"啊~"地浪叫一声，截面露出水润的果肉，仿佛在暗示什么。他拿起较粗的那段在自己脸上"嗯~"地蹭了蹭，眼神迷离地看着镜头，仿佛手里拿着的不是黄瓜而是一根滚烫的大鸡巴。\n\n他趴在床上撅起屁股——"啊~大鸡巴~干我~"地浪叫，让镜头从后面拍，能清楚看到他半张的后庭。他把黄瓜抵在自己的后庭上——"啊~"地尖叫一声，前端在褶皱上来回蹭，前列腺液把黄瓜头"嗯~"地沾湿了。他"啊~嗯~"地浪叫，腰部剧烈扭动，把黄瓜一点一点"啊~"地塞进后庭里——"啊~大鸡巴~好大~插我~"地浪叫，整根黄瓜"嗯~"地被后庭吞进去一大半。\n\n他开始"啊~"地用黄瓜抽插自己的后庭——"啊~大鸡巴~干我~用力~"地浪叫，每一下都"噗嗤~噗嗤~"地发出水声，黄瓜的汁液混着前列腺液"嗯~"地把整个后庭都弄得湿漉漉。他"啊~"地疯狂扭腰求操——"啊~大鸡巴~操我~"地浪叫，嘴巴大张，舌头伸出来，眼睛翻白。\n\n他一只手用黄瓜在后面"啊~"地快速抽插，另一只手"嗯~"地握住自己的肉棒开始撸动——"啊~大鸡巴~前后都要~嗯~"地浪叫，整个人被前后同时玩弄到身体剧烈颤抖——"啊~要去了~操我~"地大叫着高潮，肉棒"啊~"地喷射，浓稠的白色精液喷涌而出，喷到自己的肚子上，整个人"嗯~嗯~"地闷哼到失神，舌头伸出来，眼神涣散，黄瓜还插在后庭里"啊~"地颤动。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""大鸡巴想干他""想操他后庭""想日他"疯了一样刷屏，城堡、火箭、告白气球满天飞。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '大鸡巴想干', '想操后庭', '想日'],
+        giftTrigger: true,
+        unlockFans: 1000000
+    },
+    {
+        id: 'silicone_m',
+        name: '硅胶大屌',
+        icon: '🍆',
+        category: '高级',
+        actionText: `🍆 **硅胶大屌·肏到喷射** —— 主播神秘地从抽屉里掏出一根比真屌还粗还长的黑色硅胶大屌，故意在镜头前展示了一下——青筋暴起、龟头狰狞，整根"鸡巴"又粗又长，"啊~"地让镜头看清楚它的尺寸，比法棍粗两倍。\n\n他在硅胶大屌上涂满润滑油——"嗯~"地轻哼，粘稠的润滑油顺着棒身流下来，把整根"鸡巴"都"啊~"地弄得亮晶晶。他趴在床上撅起屁股让镜头从后面拍——"啊~大鸡巴~干我~"地浪叫，镜头里能清楚看到他半张的后庭和不停收缩的褶皱。\n\n他把硅胶大屌抵在自己的后庭上——"啊~"地尖叫一声，粗大的龟头在褶皱上来回蹭，前列腺液把龟头"嗯~"地沾湿了。他"啊~嗯~"地浪叫，腰部剧烈扭动，把硅胶大屌一点一点"啊~"地塞进后庭里——"啊~大鸡巴~好大~插我~嗯~"地浪叫，整根硅胶大屌"啊~"地被后庭吞进去一大半。\n\n他开始"啊~"地用硅胶大屌抽插自己的后庭——"啊~大鸡巴~干我~用力~"地浪叫，每一下都"啪~啪~啪~"地拍打在他的臀肉上，润滑油和前列腺液"嗯~"地把整个后庭都弄得湿漉漉，床单都"啊~"地湿了一片。他"啊~"地疯狂扭腰求操——"啊~大鸡巴~操我~"地浪叫，嘴巴大张，舌头伸出来，眼睛翻白。\n\n他一只手用硅胶大屌在后面"啊~"地疯狂抽插，另一只手"嗯~"地握住自己的肉棒开始快速撸动——"啊~大鸡巴~前后都要~用力~嗯~"地浪叫，整个人被前后同时猛烈玩弄到身体剧烈颤抖——"啊~要去了~操死我~"地大叫着高潮，肉棒"啊~"地喷射，浓稠的白色精液喷涌而出，喷到床单上，整个人"嗯~嗯~"地闷哼到失神，舌头伸出来，眼神涣散，硅胶大屌还插在后庭里"啊~"地震颤。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""大鸡巴想干他""想操他后庭""想日他""想肏他"疯了一样刷屏，礼物大到根本看不清。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '大鸡巴想干', '想操后庭', '想日', '想肏'],
+        giftTrigger: true,
+        unlockFans: 1000000
+    },
+    {
+        id: 'squid_m',
+        name: '鱿鱼丝',
+        icon: '🦑',
+        category: '高级',
+        actionText: `🦑 **鱿鱼丝·触手玩弄** —— 主播端来一盘柔韧的鱿鱼丝，故意在镜头前拿起一根在手指间缠绕——鱿鱼丝的触须柔软又有弹性，他一边缠一边舔了舔嘴唇，眼神里全是骚气，仿佛手里拿着的不是鱿鱼而是一根又长又软的大鸡巴。\n\n他先把鱿鱼丝贴在自己的乳尖上——"啊~嗯~好痒~"地浪叫，柔软又有弹性的触须在乳尖上来回扫动，痒得他"嗯~"地叫出声，身体不自觉地颤抖，腰部跟着扭动。乳尖在鱿鱼丝的刺激下"啊~"地硬成两粒通红的小豆，他又用鱿鱼丝在乳尖上"嗯~"地画圈，每画一圈都"啊~"地浪叫一声。\n\n他又把鱿鱼丝沿着身体一路向下，慢慢滑过腹部、肚脐、最后滑到肉棒上——"啊~嗯~"地浪叫，鱿鱼丝柔软又有弹性的触须在肉棒上来回缠动，前端"嗯~"地流出更多前列腺液。他"啊~"地用鱿鱼丝把整个肉棒都"嗯~"地缠绕住，仿佛被好几根大鸡巴一起撸动——"啊~好满~"地浪叫出声。\n\n他又把一根长长的鱿鱼须直接塞进嘴里——"唔~"地闷哼，模拟被大鸡巴深喉的动作，鱿鱼须在他嘴里"嗯~"地进进出出，发出"唔~唔~"的声音，喉部因为异物感而"呃~"地干呕。他的眼神迷离地看着镜头，仿佛嘴里含着的不是鱿鱼而是一根滚烫的大鸡巴。\n\n他又用鱿鱼须插自己的后庭——"啊~"地尖叫一声，又长又软的鱿鱼须在后庭里"嗯~"地蠕动着，每动一下都让他"啊~好爽~大鸡巴干我~"地浪叫，前列腺液顺着鱿鱼须流到床单上。他一边用鱿鱼须"啊~"地操自己的后庭，一边用手指"嗯~"地狠狠撸自己的肉棒——最后"啊~要去了~操死我~"地大叫着高潮，肉棒"啊~"地喷射，浓稠的白色精液喷涌而出，喷到自己的胸膛和肚子上，整个人"嗯~嗯~"地闷哼到失神，舌头伸出来，眼神涣散。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""大鸡巴想干他""想操他后庭""想日他"疯了一样刷屏，礼物雨根本停不下来。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '大鸡巴想干', '想操后庭', '想日'],
+        giftTrigger: true,
+        unlockFans: 1000000
+    },
+    {
+        id: 'icecream_m',
+        name: '冰激凌涂身',
+        icon: '🍦',
+        category: '走神',
+        actionText: `🍦 **冰激凌涂身·甜腻诱惑** —— 主播从冰箱里拿出一支奶油冰激凌，故意在镜头前"啊~"地舔了一口——"嗯~好甜~"地轻哼，眼神里全是若有所思的样子，仿佛在吃甜点解闷。\n\n他把冰凉的冰激凌贴在自己的乳尖上——"啊~好凉~"地轻呼一声，冰激凌的凉意"嗯~"地让乳尖瞬间硬成两粒通红的小豆。他"啊~"地故意让冰激凌从乳尖慢慢融化到整个乳晕——"嗯~"地浪叫，冰激凌顺着胸膛一路"滴答~滴答~"地流下来，画面色情到极致。\n\n他用舌头"啊~"地把流到腹部的冰激凌舔干净——"嗯~"地浪叫，舌尖在腹部画着圈，慢慢往下滑。他故意把冰激凌的奶油挤在自己的肉棒上——"啊~"地浪叫一声，凉凉的奶油"嗯~"地包裹住整个肉棒，前端"啊~"地流出前列腺液把奶油都"嗯~"地化开了。\n\n他用冰激凌在肉棒上来回撸动——"啊~大鸡巴~嗯~"地浪叫，奶油让撸动变得更滑更顺，整个肉棒被奶油"嗯~"地裹着"啊~"地快速上下——前端"嗯~"地流出更多前列腺液混着奶油，把整个肉棒都"啊~"地弄得又白又骚。\n\n他把冰激凌的奶油挤在自己的后庭上——"啊~不要~嗯~"地浪叫，凉凉的奶油"嗯~"地覆盖住整个后庭，整个人"啊~"地软了。他"嗯~"地用手指"啊~"地把奶油抹进后庭里，褶皱被奶油"嗯~"地填满，他"啊~"地快速用手指抽插——"啊~大鸡巴~操我~"地浪叫，嘴巴大张，舌头伸出来，眼睛翻白。\n\n他一边"嗯~"地假装在吃冰激凌，一边"啊~"地用冰激凌在身上到处涂——"啊~"地浪叫出声，整个人快要被自己玩到高潮——"啊~要去了~操我~"地大叫着高潮，肉棒"啊~"地喷射，浓稠的白色精液混着奶油喷涌而出，喷到自己的胸膛和肚子上，整个人"嗯~嗯~"地闷哼到失神。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""想操他""想舔他""约吗"疯了一样刷屏，礼物雨根本停不下来。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '硬了', '想操', '想舔'],
+        giftTrigger: true,
+        unlockFans: 0
+    },
+    {
+        id: 'rose_m',
+        name: '玫瑰花瓣',
+        icon: '🌹',
+        category: '走神',
+        actionText: `🌹 **玫瑰花瓣·全身敏感** —— 主播神秘地从抽屉里拿出一束红玫瑰，故意在镜头前闻了闻——"嗯~"地轻哼，眼神里全是若有所思的样子，仿佛在摆弄一束花。\n\n他把玫瑰花瓣一片片摘下来——"嗯~"地轻哼，鲜红的花瓣在他白皙的手指间"啊~"地显得格外显眼。他故意把花瓣贴在自己的乳尖上——"啊~"地尖叫一声，花瓣的柔软质感"嗯~"地让乳尖瞬间硬成两粒小豆。他"啊~"地用花瓣在乳晕上来回扫——"嗯~好爽~大鸡巴~"地浪叫，整个胸膛因为酥痒而不停起伏。\n\n花瓣顺着胸膛一路往下滑——"啊~嗯~"地浪叫，花瓣扫过肚脐时"嗯~"地让他身体剧烈收缩，扫到小腹时"啊~"地让他整个人都软了。他把玫瑰的花茎贴在自己的肉棒上——"啊~"地尖叫，花茎上"嗯~"地有细小的刺，每一根"啊~"地扎在肉棒上都让他"嗯~"地闷哼出声，前端"嗯~"地流出前列腺液。\n\n他用花瓣缠绕自己的肉棒——"啊~大鸡巴~"地浪叫，鲜红的花瓣"嗯~"地把肉棒包成玫瑰的形状，前端"啊~"地更红了。他"嗯~"地用花瓣在肉棒上来回撸——"啊~"地浪叫，每一片花瓣"嗯~"地滑过肉棒都让他"啊~"地叫出声。\n\n他用玫瑰花瓣贴在自己的后庭上——"啊~不要~嗯~"地尖叫，鲜红的花瓣"嗯~"地贴在褶皱上，整个人"啊~"地不停颤抖。他"嗯~"地用手指把花瓣"啊~"地塞进后庭里——"啊~大鸡巴~操我~"地浪叫，嘴巴大张，舌头伸出来，眼睛翻白。\n\n他一边"嗯~"地假装在玩花，一边"啊~"地用玫瑰花瓣在身上到处贴——"啊~"地浪叫出声，整个人快要被自己玩到高潮——"啊~要去了~操我~"地大叫着高潮，肉棒"啊~"地喷射，浓稠的白色精液喷涌而出，喷到花瓣和自己的胸膛上，整个人"嗯~嗯~"地闷哼到失神，舌头伸出来，眼神涣散。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""想操他""想舔他""约吗"疯了一样刷屏，城堡、火箭、告白气球满天飞。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '硬了', '想操', '想舔'],
+        giftTrigger: true,
+        unlockFans: 0
+    },
+    {
+        id: 'whipped_m',
+        name: '奶油喷涂',
+        icon: '🥛',
+        category: '走神',
+        actionText: `🥛 **奶油喷涂·甜腻诱惑** —— 主播从冰箱里拿出一罐奶油喷罐，故意在镜头前"嗤~"地喷了一点在自己手腕上试温度——"嗯~"地轻哼，眼神里全是若有所思的样子，仿佛在准备做甜点。\n\n他"嗤~"地把奶油喷在自己的乳尖上——"啊~好凉~"地轻呼一声，奶油"嗯~"地在乳尖上堆成两个白色的小山丘。他"啊~"地用手指"嗯~"地把奶油在乳晕上抹开——"嗯~大鸡巴~"地浪叫，乳尖因为手指和奶油的触感而"啊~"地硬成两粒通红的小豆，从奶油的白色中"嗯~"地凸出来。\n\n他"嗤~"地把奶油喷在自己的腹肌上——"啊~"地浪叫，奶油在腹肌的沟壑里"嗯~"地形成一道道白色的纹路，整个腹肌被奶油"嗯~"地显得更立体更色情。他"啊~"地用舌头"嗯~"地把奶油舔干净——"嗯~好甜~"地浪叫，舌尖在腹部画着圈。\n\n他"嗤~"地把奶油喷在自己的肉棒上——"啊~"地尖叫一声，奶油"嗯~"地瞬间把整个肉棒覆盖住，前端"啊~"地流出前列腺液把奶油都"嗯~"地化开了。他"啊~"地用奶油在肉棒上来回撸动——"啊~大鸡巴~"地浪叫，奶油让撸动变得更滑更顺，肉棒被奶油"嗯~"地裹着"啊~"地快速上下。\n\n他"嗤~"地把奶油喷在自己的后庭上——"啊~不要~嗯~"地浪叫，凉凉的奶油"嗯~"地覆盖住整个后庭，整个人"啊~"地软了。他"嗯~"地用手指"啊~"地把奶油抹进后庭里，褶皱被奶油"嗯~"地填满，他"啊~"地快速用手指抽插——"啊~大鸡巴~操我~"地浪叫，嘴巴大张，舌头伸出来，眼睛翻白。\n\n他一边"嗯~"地假装在做甜点，一边"啊~"地用奶油在身上到处喷——"啊~"地浪叫出声，整个人快要被自己玩到高潮——"啊~要去了~操我~"地大叫着高潮，肉棒"啊~"地喷射，浓稠的白色精液混着奶油喷涌而出，喷到自己的胸膛和肚子上，整个人"嗯~嗯~"地闷哼到失神，舌头伸出来，眼神涣散。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""想操他""想舔他""约吗"疯了一样刷屏，礼物大到根本看不清。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '硬了', '想操', '想舔'],
+        giftTrigger: true,
+        unlockFans: 0
+    },
+    {
+        id: 'tube_m',
+        name: '软管开发',
+        icon: '🧴',
+        category: '基础',
+        actionText: `🧴 **软管开发·后庭刺激** —— 主播从工具箱里掏出一根细长的透明软管，故意在镜头前展示了一下——管身软软的，可以随意弯折，他眯着眼"嗯~"地轻哼，眼神里全是骚气。\n\n他先把软管贴在自己的肉棒上——"嗯~"地轻哼，软管的凉意"啊~"地让肉棒"嗯~"地缩了一下但很快又"啊~"地硬了起来。他"啊~"地用软管在肉棒上来回撸动——"嗯~大鸡巴~"地浪叫，软管的摩擦让前端"啊~"地流出更多前列腺液。\n\n他又把软管涂上润滑油——"嗯~"地轻哼，粘稠的润滑油"啊~"地让软管变得更加光滑。他"啊~"地把软管慢慢塞进自己的后庭——"嗯~大鸡巴~"地浪叫，软管的柔软和弹性"啊~"地让后庭的褶皱"嗯~"地被一根根软管"啊~"地顶开，整个人"嗯~"地"啊~"地闷哼出声。\n\n他开始"嗯~"地用软管在自己的后庭里"啊~"地蠕动——"啊~大鸡巴~"地浪叫，每蠕动一下都让他"嗯~"地"啊~"地闷哼一声，前端"嗯~"地流出更多前列腺液。他"啊~"地一边用软管"嗯~"地操自己的后庭，一边用手"啊~"地撸自己的肉棒——"嗯~大鸡巴~"地浪叫，整个人"啊~"地被前后同时玩弄。\n\n他"嗯~"地故意让软管在后庭里"啊~"地弯曲成各种形状——"嗯~大鸡巴~"地浪叫，软管"啊~"地在后庭里"嗯~"地像一根柔软的大鸡巴一样"啊~"地搅动，整个画面色情到极致。他"啊~"地加速——"嗯~大鸡巴~操我~"地浪叫，整个人"啊~"地快要被软管玩到高潮——"啊~要去了~操我~"地大叫着高潮，肉棒"啊~"地喷射，浓稠的白色精液喷涌而出，喷到自己的胸膛和肚子上，整个人"嗯~嗯~"地闷哼到失神，软管还插在后庭里"啊~"地颤动。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""大鸡巴想干他""想操他后庭""想日他"疯了一样刷屏，礼物雨根本停不下来。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '硬了', '大鸡巴想干', '想操后庭', '想日'],
+        giftTrigger: true,
+        unlockFans: 0
+    },
+    {
+        id: 'chain_m',
+        name: '金属链',
+        icon: '⛓️',
+        category: '高级',
+        actionText: `⛓️ **金属链·冰凉刺激** —— 主播神秘地从抽屉里掏出一条银色的金属链，故意在镜头前展示了一下——链子冰凉地"嗯~"地在灯光下泛着金属的光泽，他眯着眼"嗯~"地轻哼，眼神里全是又骚又委屈的样子，仿佛要被"调教"一样。\n\n他先把金属链搭在自己的乳尖上——"啊~好凉~"地尖叫一声，乳尖因为金属的冰凉而"嗯~"地瞬间硬成两粒通红的小豆，链子的凉意"啊~"地让他"嗯~"地整个人都软了。他"啊~"地让链子在乳晕上"嗯~"地来回画圈——"嗯~大鸡巴~"地浪叫，乳尖因为金属的摩擦而"啊~"地变得更加敏感。\n\n他又把金属链绕在自己的肉棒根部系紧——"啊~不要~嗯~"地浪叫，肉棒被链子"嗯~"地勒得"啊~"地跳动，前端"嗯~"地流出更多前列腺液。他"啊~"地故意让链子"嗯~"地勒出深深的痕迹——"嗯~大鸡巴~"地浪叫，肉棒因为束缚而"啊~"地变得更加粗大。\n\n他趴在床上让镜头从后面拍——"啊~大鸡巴~操我~"地浪叫，让镜头"嗯~"地看清被金属链勒着肉棒根部的屁股和不停收缩的褶皱。他"啊~"地用金属链的另一头"嗯~"地在自己后庭上来回蹭——"嗯~大鸡巴~"地浪叫，金属的冰凉和坚硬"啊~"地让褶皱"嗯~"地不停收缩。\n\n他又拿起一根法棍抵在自己被链子勒着的肉棒上——"啊~大鸡巴~"地浪叫，法棍头"嗯~"地磨蹭着被链子勒得"啊~"地更敏感的肉棒。他"啊~"地一边用金属链"嗯~"地抽打自己的屁股——"啪~啪~啪~"地脆响，屁股被打得"啊~"地通红发热，一边"嗯~"地用手快速撸动自己的肉棒——"啊~大鸡巴~"地浪叫，整个人"啊~"地快要被金属链玩到高潮。\n\n他"啊~"地加速——"嗯~大鸡巴~操我~"地浪叫，嘴巴大张，舌头伸出来，眼睛翻白，整个人快要被金属链"嗯~"地玩到高潮——"啊~要去了~操我~"地大叫着高潮，肉棒"啊~"地喷射，浓稠的白色精液喷涌而出，喷到床单上，整个人"嗯~嗯~"地闷哼到失神，金属链还勒在肉棒根部"啊~"地颤动。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""大鸡巴想干他""想SM他""想操他"疯了一样刷屏，礼物大到根本看不清。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '大鸡巴想干', '想SM', '想操'],
+        giftTrigger: true,
+        unlockFans: 1000000
+    },
+    {
+        id: 'chocolate_m',
+        name: '巧克力酱',
+        icon: '🍫',
+        category: '走神',
+        actionText: `🍫 **巧克力酱·甜腻后庭** —— 主播从冰箱里拿出一罐巧克力酱，故意在镜头前"啊~"地打开——浓浓的巧克力香气"嗯~"地在空气里弥漫，他眯着眼"嗯~"地轻哼，眼神里全是若有所思的样子，仿佛在准备一份甜点。\n\n他先把巧克力酱挤在自己的乳尖上——"啊~"地轻呼一声，凉凉的巧克力酱"嗯~"地让乳尖"啊~"地瞬间硬成两粒通红的小豆。他"啊~"地用手指"嗯~"地把巧克力酱在乳晕上抹开——"嗯~大鸡巴~"地浪叫，乳尖因为手指的触感而"啊~"地变得更加敏感。\n\n他"啊~"地把巧克力酱挤在自己的肉棒上——"嗯~"地浪叫，凉凉的巧克力酱"嗯~"地包裹住整个肉棒。他"啊~"地用手"嗯~"地把巧克力酱在肉棒上"啊~"地抹开——"嗯~大鸡巴~"地浪叫，前端"嗯~"地流出前列腺液把巧克力酱"啊~"地化开了，整个肉棒"嗯~"地变得又黏又骚。\n\n他"啊~"地把巧克力酱挤在自己的后庭上——"嗯~"地浪叫，凉凉的巧克力酱"嗯~"地让后庭"啊~"地缩了一下。他"嗯~"地用手指"啊~"地把巧克力酱抹进后庭里——"嗯~大鸡巴~"地浪叫，褶皱被巧克力酱"嗯~"地填满，他"啊~"地快速用手指"嗯~"地抽插——"嗯~大鸡巴~操我~"地浪叫。\n\n他"啊~"地又往巧克力酱里加了一点温热的奶油——"嗯~"地轻哼，巧克力酱和奶油"啊~"地混在一起变成了一种又甜又骚的液体。他"嗯~"地把这种混合液"啊~"地慢慢灌进自己的后庭里——"嗯~大鸡巴~"地浪叫，整个后庭"啊~"地被又甜又热的液体"嗯~"地填满，整个人"啊~"地"嗯~"地闷哼到身体剧烈颤抖。\n\n他一边"嗯~"地假装在做甜点，一边"啊~"地用巧克力酱在自己身上到处涂——"啊~"地浪叫出声，嘴巴大张，舌头伸出来，眼睛翻白，整个人快要被自己玩到高潮——"啊~要去了~操我~"地大叫着高潮，肉棒"啊~"地喷射，浓稠的白色精液混着巧克力酱喷涌而出，喷到自己的胸膛和肚子上，整个人"嗯~嗯~"地闷哼到失神，舌头伸出来，眼神涣散。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""想操他""想舔他""约吗"疯了一样刷屏，城堡、火箭、告白气球满天飞。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '硬了', '想操', '想舔'],
+        giftTrigger: true,
+        unlockFans: 0
+    },
+    {
+        id: 'mirror_m',
+        name: '镜前展示',
+        icon: '🪞',
+        category: '高级',
+        actionText: `🪞 **镜前展示·自我欣赏** —— 主播神秘地从旁边搬来一面落地镜，故意在镜头前摆好位置——镜子"嗯~"地把他整个身体倒映出来，他眯着眼"嗯~"地轻哼，眼神里全是又骚又得意的样子。\n\n他先在镜子前摆出一个撩人的姿势——"嗯~"地轻哼，故意让镜子里的自己"啊~"地展示出最美的肌肉曲线。他"啊~"地用手从自己的胸膛"嗯~"地一路滑到肉棒——"嗯~大鸡巴~"地浪叫，镜子里的自己也"啊~"地做着同样的动作，整个画面"嗯~"地充满情欲。\n\n他又在镜子前用手指揉自己的乳尖——"啊~"地浪叫，乳尖"嗯~"地因为手指的刺激而"啊~"地硬成两粒通红的小豆，镜子里的乳尖"嗯~"也跟着"啊~"地硬挺起来。他"嗯~"地故意对着镜子"啊~"地展示自己被玩弄的样子——"嗯~大鸡巴~"地浪叫，眼神里全是骚气。\n\n他又在镜子前用手指自慰——"啊~"地浪叫，手指"嗯~"地在肉棒上来回撸动，镜子里的自己也"啊~"地做着同样的动作——"嗯~大鸡巴~"地浪叫，前端"嗯~"地流出更多前列腺液把镜子"啊~"地都打湿了一小块。他"啊~"地故意让镜子"嗯~"地反射出自己最骚的样子——"嗯~"地浪叫，整个画面色情到极致。\n\n他一边"嗯~"地假装在镜子前欣赏自己，一边"啊~"地用手指快速撸动肉棒——"啊~"地浪叫出声，嘴巴大张，舌头伸出来，眼睛翻白，看着镜子里的自己"嗯~"地快要高潮——"啊~要去了~操我~"地大叫着高潮，肉棒"啊~"地喷射，浓稠的白色精液喷涌而出，喷到镜子上，整个人"嗯~嗯~"地闷哼到失神。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""想操他""想舔他""约吗"疯了一样刷屏，礼物雨根本停不下来。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '硬了', '想操', '想舔', '约吗'],
+        giftTrigger: true,
+        unlockFans: 1000000
+    },
+    {
+        id: 'milk_m',
+        name: '鲜奶泡身',
+        icon: '🥛',
+        category: '走神',
+        actionText: `🥛 **鲜奶泡身·白嫩诱惑** —— 主播神秘地从冰箱里拿出一大瓶鲜牛奶，故意在镜头前"啊~"地倒了一点在自己手腕上试温度——"嗯~"地轻哼，眼神里全是若有所思的样子，仿佛在准备泡个牛奶浴。\n\n他先把温热的鲜牛奶倒在自己的胸膛上——"啊~"地轻呼一声，温热的液体"嗯~"地顺着胸膛流到乳尖上——"嗯~"地浪叫，乳尖因为温热而"啊~"地硬成两粒通红的小豆。他"啊~"地故意让鲜牛奶"嗯~"地在乳尖上"啊~"地慢慢流过——"嗯~大鸡巴~"地浪叫，整个胸膛"啊~"地被鲜牛奶"嗯~"地涂得又白又湿。\n\n他又把鲜牛奶倒在自己的肉棒上——"啊~"地尖叫一声，温热的鲜牛奶"嗯~"地包裹住整个肉棒，前端"啊~"地流出前列腺液把鲜牛奶"嗯~"地弄得更湿了。他"啊~"地用鲜牛奶"嗯~"地在肉棒上来回撸动——"嗯~大鸡巴~"地浪叫，鲜牛奶让撸动"啊~"地变得更滑更顺，整个肉棒"嗯~"地被鲜奶"啊~"地涂得又白又骚。\n\n他又把温热的鲜牛奶倒在自己的后庭上——"啊~不要~嗯~"地浪叫，温热的液体"嗯~"地覆盖住整个后庭，整个人"啊~"地软了。他"嗯~"地用手指"啊~"地把鲜牛奶抹进后庭里——"嗯~大鸡巴~"地浪叫，褶皱被鲜牛奶"嗯~"地填满，他"啊~"地快速用手指"嗯~"地抽插——"嗯~大鸡巴~操我~"地浪叫。\n\n他"啊~"地故意把整瓶鲜牛奶慢慢往自己身上倒——"嗯~"地浪叫，鲜牛奶"嗯~"地顺着胸膛、乳沟、腹部、肉棒、后庭"啊~"地流下来，整个身体"嗯~"地被鲜牛奶"啊~"地涂成又白又湿的样子。他"啊~"地假装在泡牛奶浴——"嗯~"地轻哼，整个画面色情到极致。\n\n他一边"嗯~"地假装在泡牛奶浴，一边"啊~"地用鲜牛奶在自己身上到处涂——"啊~"地浪叫出声，嘴巴大张，舌头伸出来，眼睛翻白，整个人快要被自己玩到高潮——"啊~要去了~操我~"地大叫着高潮，肉棒"啊~"地喷射，浓稠的白色精液混着鲜牛奶喷涌而出，喷到自己的胸膛和肚子上，整个人"嗯~嗯~"地闷哼到失神，舌头伸出来，眼神涣散。\n\n弹幕"啊啊啊啊""我死了""受不了""这谁顶得住""硬了硬了""想操他""想舔他""约吗"疯了一样刷屏，礼物大到根本看不清。`,
+        danmuReactions: ['啊啊啊啊', '我死了', '受不了', '这谁顶得住', '硬了', '想操', '想舔', '约吗'],
+        giftTrigger: true,
+        unlockFans: 0
+    }
+]
+
+</script>
+</body>
+</html>
