@@ -680,7 +680,7 @@
     
     <!-- 主页手动存档按钮 + 自动保存提示 -->
     <button class="manual-save-btn" onclick="manualSave()">💾 手动存档</button>
-    <div class="auto-save-hint" id="auto-save-hint">🟢 自动存档中...</div>
+    <div class="auto-save-hint" id="auto-save-hint">🟢 离开自动存档</div>
 
 <script>
 // ====== 全局数据 ======
@@ -817,36 +817,25 @@ updateSaveHint();
 function updateSaveHint() {
     const hint = document.getElementById('auto-save-hint');
     if (!hint) return;
-    const now = Date.now();
-    const ago = Math.floor((now - _lastSaveTime) / 1000);
     if (_saveError) {
         hint.innerHTML = '⚠️ 存档失败';
         hint.style.color = '#ff4444';
-    } else if (ago < 3) {
-        hint.innerHTML = `💾 已存档 (${_saveCount}次)`;
-        hint.style.color = '#4eff4e';
     } else {
-        hint.innerHTML = `🕐 ${ago}秒前已存`;
+        hint.innerHTML = '🟢 离开自动存档';
         hint.style.color = 'rgba(255,107,157,0.7)';
     }
 }
-// 每秒刷新一次存档提示
-setInterval(updateSaveHint, 1000);
 
-// ====== 多重触发自动保存 ======
-// 1) 退出/刷新页面时保存
-window.addEventListener('beforeunload', () => {
-    saveGame(true);
-});
+// ====== 自动保存：离开页面时触发 ======
+// 1) 关闭/刷新页面时保存
+window.addEventListener('beforeunload', () => { saveGame(true); });
 // 2) 移动端切后台时保存
 window.addEventListener('pagehide', () => saveGame(true));
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') saveGame(true);
 });
-// 3) 每5秒自动保存（更频繁）
-setInterval(() => saveGame(true), 5000);
 
-// 4) 暴露手动存档按钮
+// 手动存档按钮
 function manualSave() {
     const ok = saveGame(true);
     if (ok) {
@@ -855,19 +844,6 @@ function manualSave() {
         showToast('⚠️ 存档失败，请检查浏览器存储');
     }
 }
-
-// 5) 检测关键数据变化时自动存档（防丢失）
-let _lastFans = 0, _lastIncome = 0, _lastMessageCount = 0;
-setInterval(() => {
-    if (gameState.myFans !== _lastFans || 
-        gameState.myIncome !== _lastIncome || 
-        gameState.messageBoard.length !== _lastMessageCount) {
-        saveGame(true);
-        _lastFans = gameState.myFans;
-        _lastIncome = gameState.myIncome;
-        _lastMessageCount = gameState.messageBoard.length;
-    }
-}, 2000);
 
 // ====== 主页相关 ======
 function changeAvatar() { document.getElementById('avatar-input').click(); }
